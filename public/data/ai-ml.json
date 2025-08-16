@@ -1,0 +1,99 @@
+{
+  "title": "AI & ML Course",
+  "subtitle": "Master Artificial Intelligence and Machine Learning",
+  "duration": "6 Months",
+  "level": "Beginner to Advanced",
+  "description": "Get industry-ready with our AI & ML program designed to teach you core algorithms, neural networks, and real-world ML applications using Python, TensorFlow, and Scikit-learn.",
+  "syllabus": [
+    {
+      "module": "Introduction to AI & ML",
+      "topics": [
+        "What is Artificial Intelligence?",
+        "Types of AI – Narrow, General, Super AI",
+        "Machine Learning vs Deep Learning",
+        "Applications of AI across Industries",
+        "Tools & Technologies in AI & ML"
+      ]
+    },
+    {
+      "module": "Mathematics for AI",
+      "topics": [
+        "Linear Algebra: Vectors, Matrices, Operations",
+        "Probability & Statistics for Machine Learning",
+        "Bayes Theorem and Conditional Probability",
+        "Descriptive Statistics & Distributions",
+        "Calculus Basics – Derivatives & Gradients"
+      ]
+    },
+    {
+      "module": "Python for AI",
+      "topics": [
+        "Python Refresher: Syntax, Loops, Functions",
+        "Numpy Arrays and Vectorization",
+        "Data Handling with Pandas",
+        "Data Visualization using Matplotlib & Seaborn",
+        "Working with JSON, CSV and APIs"
+      ]
+    },
+    {
+      "module": "Supervised Learning",
+      "topics": [
+        "Linear Regression & Gradient Descent",
+        "Logistic Regression for Classification",
+        "K-Nearest Neighbors (KNN)",
+        "Decision Trees & Random Forests",
+        "Model Evaluation: Confusion Matrix, ROC-AUC, F1-Score"
+      ]
+    },
+    {
+      "module": "Unsupervised Learning",
+      "topics": [
+        "Clustering – K-Means, Hierarchical, DBSCAN",
+        "Principal Component Analysis (PCA)",
+        "Anomaly Detection",
+        "Association Rule Mining",
+        "Data Compression & Visualization with t-SNE"
+      ]
+    },
+    {
+      "module": "Neural Networks & Deep Learning",
+      "topics": [
+        "What is a Neural Network?",
+        "Perceptron, Activation Functions, Backpropagation",
+        "Building Deep Networks using Keras/TensorFlow",
+        "Convolutional Neural Networks (CNNs)",
+        "Transfer Learning with Pretrained Models"
+      ]
+    },
+    {
+      "module": "Natural Language Processing (NLP)",
+      "topics": [
+        "Text Preprocessing & Tokenization",
+        "TF-IDF and Word Embeddings",
+        "Text Classification Models",
+        "Named Entity Recognition (NER)",
+        "Language Modeling & Transformers Overview"
+      ]
+    },
+    {
+      "module": "Model Optimization & Tuning",
+      "topics": [
+        "Bias-Variance Tradeoff",
+        "Hyperparameter Tuning with GridSearchCV",
+        "Cross Validation Techniques",
+        "Regularization: L1, L2",
+        "Ensemble Methods – XGBoost, AdaBoost"
+      ]
+    },
+    {
+      "module": "AI Project: Capstone",
+      "topics": [
+        "Problem Definition & Data Collection",
+        "Data Preprocessing & EDA",
+        "Model Training & Evaluation",
+        "Model Deployment with Flask or FastAPI",
+        "Cloud Deployment on Render or Hugging Face"
+      ]
+    }
+  ]
+}

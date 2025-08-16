@@ -1,0 +1,109 @@
+{
+  "title": "Data Science Course",
+  "subtitle": "Master the Data Science Lifecycle",
+  "duration": "4 Months",
+  "level": "Beginner to Intermediate",
+  "description": "A complete hands-on program to learn data wrangling, analysis, visualization, and machine learning using real-world tools and projects.",
+  "syllabus": [
+    {
+      "module": "Introduction to Data Science",
+      "topics": [
+        "What is Data Science?",
+        "Real-world Applications of Data Science",
+        "Career Path & Job Roles",
+        "Overview of the Data Science Lifecycle",
+        "Introduction to Tools: Python, Jupyter, Git"
+      ]
+    },
+    {
+      "module": "Python for Data Science",
+      "topics": [
+        "Python Basics (Variables, Loops, Conditionals)",
+        "Functions & Lambda Expressions",
+        "Working with Numpy Arrays",
+        "Data Manipulation with Pandas",
+        "File I/O and Data Formats (CSV, JSON, Excel)"
+      ]
+    },
+    {
+      "module": "Data Collection & Cleaning",
+      "topics": [
+        "Reading Data from APIs",
+        "Web Scraping with BeautifulSoup and Requests",
+        "Merging, Joining, and Concatenating DataFrames",
+        "Handling Missing Values & Duplicates",
+        "Dealing with Outliers and Noise"
+      ]
+    },
+    {
+      "module": "Data Visualization",
+      "topics": [
+        "Plotting with Matplotlib and Seaborn",
+        "Line Charts, Bar Graphs, Histograms",
+        "Heatmaps, Pairplots, and Distribution Plots",
+        "Plotly for Interactive Charts",
+        "Building Dashboards with Streamlit"
+      ]
+    },
+    {
+      "module": "Exploratory Data Analysis (EDA)",
+      "topics": [
+        "Understanding Data Types & Summary Statistics",
+        "Univariate & Bivariate Analysis",
+        "Correlation Matrix and Heatmaps",
+        "Data Transformation & Feature Engineering",
+        "Feature Scaling (Normalization, Standardization)"
+      ]
+    },
+    {
+      "module": "Statistics & Probability",
+      "topics": [
+        "Mean, Median, Mode, Variance, Standard Deviation",
+        "Probability Theory & Bayes’ Theorem",
+        "Discrete & Continuous Distributions",
+        "Z-Scores, Normal Distribution",
+        "Hypothesis Testing (T-test, Chi-Square Test)"
+      ]
+    },
+    {
+      "module": "Machine Learning Fundamentals",
+      "topics": [
+        "Types of Machine Learning (Supervised/Unsupervised)",
+        "Train-Test Split & Cross-Validation",
+        "Model Evaluation Metrics (Accuracy, Precision, Recall, F1-Score)",
+        "Confusion Matrix & ROC-AUC Curve",
+        "Bias-Variance Tradeoff"
+      ]
+    },
+    {
+      "module": "Supervised Learning Algorithms",
+      "topics": [
+        "Linear Regression & Polynomial Regression",
+        "Logistic Regression",
+        "K-Nearest Neighbors (KNN)",
+        "Decision Trees and Random Forests",
+        "Support Vector Machines (SVM)"
+      ]
+    },
+    {
+      "module": "Unsupervised Learning Algorithms",
+      "topics": [
+        "K-Means Clustering",
+        "Hierarchical Clustering",
+        "DBSCAN",
+        "Dimensionality Reduction with PCA",
+        "t-SNE Visualization"
+      ]
+    },
+    {
+      "module": "Model Deployment & Projects",
+      "topics": [
+        "Saving Models with Pickle/Joblib",
+        "Model Deployment using Flask",
+        "Streamlit App Deployment",
+        "End-to-End Project Pipeline",
+        "Deploying ML Models on Render / HuggingFace Spaces"
+      ]
+    }
+  ]
+}
