@@ -35,7 +35,7 @@ export function ConfirmationModal({ isOpen, onClose, onConfirm, title, descripti
                 <Button variant="outline" onClick={onClose}>
                     Cancel
                 </Button>
-                <Button variant="destructive" onClick={onConfirm}>
+                <Button variant="destructive" onClick={onConfirm} className="bg-red-500 hover:bg-red-600">
                     <Trash2 className="w-4 h-4 mr-2"/>
                     Delete
                 </Button>

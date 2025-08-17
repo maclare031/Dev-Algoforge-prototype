@@ -2,12 +2,17 @@
   "name": "algoforgestudios",
   "version": "0.1.0",
   "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
-  },
+"scripts": {
+  "dev": "next dev",
+  "build": "next build",
+  "start": "next start",
+  "lint": "next lint",
+  "seed:users": "tsx --env-file .env.local src/scripts/seedUsers.ts",
+  "seed:courses": "tsx --env-file .env.local src/scripts/seedCourses.ts",
+  "seed:test-users": "tsx --env-file .env.local src/scripts/seedTestUsers.ts",
+  "create:super-admin": "tsx --env-file .env.local src/scripts/createSuperAdmin.ts"
+
+},
   "dependencies": {
     "@google-analytics/data": "^5.2.0",
     "@headlessui/react": "^2.2.6",
@@ -26,13 +31,14 @@
     "bcryptjs": "^3.0.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "dotenv": "^17.2.1",
     "framer-motion": "^12.23.0",
     "gray-matter": "^4.0.3",
     "highlight.js": "^11.11.1",
     "jsonwebtoken": "^9.0.2",
     "lottie-react": "^2.4.1",
     "lucide-react": "^0.525.0",
-    "mongoose": "^8.16.5",
+    "mongoose": "^8.17.1",
     "next": "15.3.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -61,6 +67,7 @@
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.17",
     "ts-node": "^10.9.2",
+    "tsx": "^4.20.4",
     "typescript": "^5"
   }
 }
