@@ -1,4 +1,4 @@
-"use client";
+ "use client";
 
 import { useState, useEffect, Fragment } from "react";
 import { Dialog, Transition } from '@headlessui/react';
@@ -39,11 +39,19 @@ const formSchema = z.object({
 });
 
 export function MLHeroSection() {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  // const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [formModalOpen, setFormModalOpen] = useState(false);
   const [formType, setFormType] = useState<'ScheduleCall' | 'JoinProjects' | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [enterpriseFormModalOpen, setEnterpriseFormModalOpen] = useState(false);
+  
+  // FIX: State to prevent hydration errors
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    // FIX: Set isMounted to true only on the client-side
+    setIsMounted(true);
+  }, []);
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm({
     resolver: zodResolver(formSchema)
@@ -75,7 +83,6 @@ export function MLHeroSection() {
       return;
     }
   
-    // Prepare the data properly
     const submitData = {
       formType: formType,
       name: data.name?.trim() || '',
@@ -109,90 +116,67 @@ export function MLHeroSection() {
         throw new Error(result.error || `HTTP error! status: ${response.status}`);
       }
   
-      // Success
       alert(result.message || 'Form submitted successfully! We will contact you soon.');
       reset();
       closeFormModal();
   
     } catch (error: any) {
       console.error('Error submitting form:', error);
-      
       let errorMessage = 'Failed to submit form. Please try again.';
-      
       if (error.message) {
         errorMessage = error.message;
       }
-      
       alert(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
   };
   
-
   const openWhatsApp = () => {
     window.open("https://wa.me/8292222569", "_blank");
   };
 
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
-    };
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
+  // useEffect(() => {
+  //   const handleMouseMove = (e: MouseEvent) => {
+  //     setMousePosition({ x: e.clientX, y: e.clientY });
+  //   };
+  //   window.addEventListener("mousemove", handleMouseMove);
+  //   return () => window.removeEventListener("mousemove", handleMouseMove);
+  // }, []);
 
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden mt-4">
-      {/* Dynamic Background with Mouse Interaction */}
       <div className="absolute inset-0">
-        {/* Animated gradient orbs - Optimized for mobile */}
-        <div
-          className="absolute w-48 h-48 sm:w-72 sm:h-72 lg:w-96 lg:h-96 bg-cyan-500/10 rounded-full blur-3xl"
-          style={{ left: "10%", top: "15%" }}
-        />
-        <div
-          className="absolute w-48 h-48 sm:w-72 sm:h-72 lg:w-96 lg:h-96 bg-purple-500/10 rounded-full blur-3xl"
-          style={{ right: "10%", bottom: "15%" }}
-        />
-        <div
-          className="absolute w-32 h-32 sm:w-48 sm:h-48 lg:w-96 lg:h-96 bg-pink-500/10 rounded-full blur-3xl"
-          style={{ left: "60%", top: "60%" }}
-        />
+        <div className="absolute w-48 h-48 sm:w-72 sm:h-72 lg:w-96 lg:h-96 bg-cyan-500/10 rounded-full blur-3xl" style={{ left: "10%", top: "15%" }} />
+        <div className="absolute w-48 h-48 sm:w-72 sm:h-72 lg:w-96 lg:h-96 bg-purple-500/10 rounded-full blur-3xl" style={{ right: "10%", bottom: "15%" }} />
+        <div className="absolute w-32 h-32 sm:w-48 sm:h-48 lg:w-96 lg:h-96 bg-pink-500/10 rounded-full blur-3xl" style={{ left: "60%", top: "60%" }} />
 
-        {/* Neural network grid - Hidden on small screens */}
         <div className="absolute inset-0 opacity-10 sm:opacity-20 hidden sm:block">
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
             {[...Array(6)].map((_, i) => (
-              <div
-                key={i}
-                className="absolute border border-cyan-500/30 rounded-full"
-                style={{
-                  width: `${100 + i * 50}px`,
-                  height: `${100 + i * 50}px`,
-                  left: `${-50 - i * 25}px`,
-                  top: `${-50 - i * 25}px`,
-                }}
-              />
+              <div key={i} className="absolute border border-cyan-500/30 rounded-full" style={{ width: `${100 + i * 50}px`, height: `${100 + i * 50}px`, left: `${-50 - i * 25}px`, top: `${-50 - i * 25}px` }} />
             ))}
           </div>
         </div>
 
-        {/* Floating particles - Reduced on mobile */}
-        {[...Array(8)].map((_, i) => (
+        {/* FIX: Conditionally render particles only on the client */}
+        {isMounted && [...Array(8)].map((_, i) => (
           <div
             key={i}
             className="absolute w-1 h-1 sm:w-2 sm:h-2 bg-cyan-400/50 rounded-full hidden sm:block"
             style={{
-              x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1200),
-              y: Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 800),
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animation: `float ${5 + Math.random() * 5}s ease-in-out infinite`
             }}
           />
         ))}
       </div>
 
-      {/* Lead Form Modal */}
+      {/* ... (rest of the file remains the same) ... */}
+      
+      {/* Lead Form Modal and other UI elements */}
       <Transition.Root show={formModalOpen} as={Fragment}>
       <Dialog as="div" className="relative z-50" onClose={closeFormModal}>
     <Transition.Child
@@ -220,12 +204,10 @@ export function MLHeroSection() {
         >
           <Dialog.Panel 
             className="relative w-full max-w-sm mx-auto bg-gradient-to-br from-gray-900 via-gray-900 to-black rounded-2xl border border-cyan-600/40 shadow-2xl overflow-hidden overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e: React.MouseEvent) => e.stopPropagation()}
           >
-            {/* Decorative gradient overlay */}
             <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 via-transparent to-purple-500/5 pointer-events-none" />
             
-            {/* Close Button - Enhanced */}
             <button
               onClick={closeFormModal}
               className="absolute top-2 right-2 z-10 w-9 h-9 bg-red-500/90 hover:bg-red-500 rounded-full flex items-center justify-center text-white transition-all duration-200 shadow-lg hover:shadow-red-500/25"
@@ -234,7 +216,6 @@ export function MLHeroSection() {
               <X className="w-4 h-4" />
             </button>
 
-            {/* Header Section - Enhanced */}
             <div className="relative text-center py-4 px-3">
               <div 
                 className="flex justify-center mb-2"
@@ -269,7 +250,6 @@ export function MLHeroSection() {
                 </span>
               </div>
 
-              {/* Offer Banner - Enhanced */}
               <div 
                 className="bg-gradient-to-r from-yellow-500/20 to-orange-500/20 rounded-lg px-3 py-2 text-yellow-100 text-xs text-center border border-yellow-500/30 flex items-center justify-center gap-1 shadow-lg"
               >
@@ -280,10 +260,8 @@ export function MLHeroSection() {
               </div>
             </div>
 
-            {/* Form Section - Enhanced */}
             <div className="px-3 pb-4 max-h-[calc(100vh-16rem)] overflow-y-auto custom-scrollbar">
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
-                {/* Name Field */}
                 <div
                   className="space-y-1"
                 >
@@ -299,7 +277,6 @@ export function MLHeroSection() {
                   />
                 </div>
                 
-                {/* Email Field */}
                 <div
                   className="space-y-1"
                 >
@@ -316,7 +293,6 @@ export function MLHeroSection() {
                   />
                 </div>
                 
-                {/* Phone Field */}
                 <div
                   className="space-y-1"
                 >
@@ -332,7 +308,6 @@ export function MLHeroSection() {
                   />
                 </div>
                 
-                {/* Experience Level */}
                 <div
                   className="space-y-1"
                 >
@@ -352,7 +327,6 @@ export function MLHeroSection() {
                   </select>
                 </div>
 
-                {/* Conditional Fields - Enhanced */}
                 {formType === 'ScheduleCall' && (
                   <>
                     <div
@@ -412,8 +386,7 @@ export function MLHeroSection() {
                     </div>
                   </>
                 )}
-
-                {/* Additional Notes */}
+                
                 <div
                   className="space-y-1"
                 >
@@ -428,7 +401,6 @@ export function MLHeroSection() {
                   />
                 </div>
 
-                {/* Submit Button - Enhanced */}
                 <div
                   className="pt-2"
                 >
@@ -451,7 +423,6 @@ export function MLHeroSection() {
                   </button>
                 </div>
 
-                {/* Security Footer - Enhanced */}
                 <div 
                   className="flex items-center justify-center gap-2 mt-3 pt-2 border-t border-gray-700/50"
                 >
@@ -503,12 +474,10 @@ export function MLHeroSection() {
         >
           <Dialog.Panel 
             className="relative w-full max-w-sm mx-auto bg-gradient-to-br from-gray-900 via-gray-900 to-black rounded-2xl border border-cyan-600/40 shadow-2xl overflow-hidden overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e: React.MouseEvent) => e.stopPropagation()}
           >
-            {/* Decorative gradient overlay */}
             <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 via-transparent to-purple-500/5 pointer-events-none" />
             
-            {/* Close Button - Enhanced */}
             <button
               onClick={closeEnterpriseFormModal}
               className="absolute top-2 right-2 z-10 w-9 h-9 bg-red-500/90 hover:bg-red-500 rounded-full flex items-center justify-center text-white transition-all duration-200 shadow-lg hover:shadow-red-500/25"
@@ -546,14 +515,11 @@ export function MLHeroSection() {
   </Dialog>
 </Transition.Root>
 
-      {/* Main container */}
       <div className="relative z-10 max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 py-4 sm:py-6">
         <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-16 items-center">
-          {/* Left Content */}
           <div
             className="space-y-4 sm:space-y-6 lg:space-y-8 order-2 lg:order-1"
           >
-            {/* Trust badge */}
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -566,7 +532,6 @@ export function MLHeroSection() {
               </span>
             </motion.div>
 
-            {/* Main heading */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -599,7 +564,6 @@ export function MLHeroSection() {
               </motion.p>
             </motion.div>
 
-            {/* Value proposition */}
             <motion.p
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
@@ -611,7 +575,6 @@ export function MLHeroSection() {
               mastering real-world machine learning skills.
             </motion.p>
 
-            {/* Key benefits */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -637,8 +600,7 @@ export function MLHeroSection() {
                 </motion.div>
               ))}
             </motion.div>
-
-            {/* CTA Buttons */}
+            
             <div
               className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-2 sm:pt-4"
             >
@@ -665,8 +627,7 @@ export function MLHeroSection() {
                 <span className="sm:hidden">Enterprise</span>
               </Button>
             </div>
-
-            {/* Social proof stats */}
+            
             <div
               className="flex items-center justify-center sm:justify-start gap-4 sm:gap-6 lg:gap-8 pt-4 sm:pt-6 lg:pt-8 border-t border-gray-200"
             >
@@ -688,29 +649,21 @@ export function MLHeroSection() {
             </div>
           </div>
 
-          {/* Right Content - Enhanced Visual Experience */}
           <div
             className="relative h-[400px] sm:h-[500px] lg:h-[600px] xl:h-[700px] flex items-center justify-center order-1 lg:order-2"
           >
-            {/* Main visual container */}
             <div className="relative w-full max-w-sm sm:max-w-md lg:max-w-lg">
-              {/* Central animation/visual area */}
               <div className="relative">
-                {/* Main content card */}
                 <div className="relative bg-gradient-to-br from-white to-blue-50/50 rounded-2xl sm:rounded-3xl shadow-2xl border border-white/20 backdrop-blur-sm overflow-hidden">
-                  {/* Background pattern */}
                   <div className="absolute inset-0">
                     <div className="absolute inset-0 bg-gradient-to-br from-blue-600/5 via-purple-600/5 to-cyan-600/5"></div>
                     <div className="absolute top-0 right-0 w-16 h-16 sm:w-24 sm:h-24 lg:w-32 lg:h-32 bg-gradient-to-br from-blue-400/10 to-purple-400/10 rounded-full blur-2xl"></div>
                     <div className="absolute bottom-0 left-0 w-12 h-12 sm:w-18 sm:h-18 lg:w-24 lg:h-24 bg-gradient-to-br from-cyan-400/10 to-blue-400/10 rounded-full blur-xl"></div>
                   </div>
 
-                  {/* Content */}
                   <div className="relative z-10 p-4 sm:p-6 lg:p-8 text-center">
-                    {/* 3D Scene */}
                     <div className="mb-4 sm:mb-6 lg:mb-8">
                       <div className="w-50 h-32 sm:h-40 lg:h-48 mx-auto bg-gradient-to-br from-blue-100 to-purple-100 rounded-full shadow-inner flex items-center justify-center relative overflow-hidden">
-                        {/* Animated rings - Responsive */}
                         <div
                           className="absolute inset-2 sm:inset-4 border border-blue-300/30 rounded-full animate-spin"
                           style={{ animationDuration: "8s" }}
@@ -727,12 +680,10 @@ export function MLHeroSection() {
                           style={{ animationDuration: "4s" }}
                         ></div>
 
-                        {/* Central content */}
                         <div className="relative z-10 text-center align-middle scale-75 sm:scale-90 lg:scale-100">
                           <Scene />
                         </div>
 
-                        {/* Floating particles - Responsive */}
                         {[...Array(6)].map((_, i) => (
                           <div
                             key={i}
@@ -746,11 +697,9 @@ export function MLHeroSection() {
                       </div>
                     </div>
 
-{/* CTA Buttons - Responsive */}
                     <div
                       className="space-y-3 sm:space-y-4"
                     >
-                      {/* Primary CTA */}
                       <Button
                         size="lg"
                         onClick={() => openFormModal('ScheduleCall')}
@@ -762,7 +711,6 @@ export function MLHeroSection() {
                         <Sparkles className="ml-2 sm:ml-3 w-4 h-4 sm:w-5 sm:h-5 group-hover:rotate-12 transition-transform" />
                       </Button>
 
-                      {/* Secondary CTA */}
                       <Button
                         size="lg"
                         onClick={() => openFormModal('JoinProjects')}
@@ -776,7 +724,6 @@ export function MLHeroSection() {
                       </Button>
                     </div>
 
-                    {/* Quick stats - Responsive */}
                     <div
                       className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-gray-200/50"
                     >
@@ -803,7 +750,6 @@ export function MLHeroSection() {
                 </div>
               </div>
 
-              {/* Enhanced floating achievement cards - Responsive positioning */}
               <div
                 className="absolute -top-2 -right-2 sm:-top-4 sm:-right-4 bg-white/95 backdrop-blur-md rounded-xl sm:rounded-2xl shadow-xl p-2 sm:p-3 border border-white/50 z-20"
               >
@@ -836,7 +782,6 @@ export function MLHeroSection() {
                 </div>
               </div>
 
-              {/* Side achievement card - Hidden on mobile for cleaner look */}
               <div
                 className="absolute top-1/2 -left-4 sm:-left-8 transform -translate-y-1/2 bg-white/95 backdrop-blur-md rounded-lg sm:rounded-xl shadow-lg p-1.5 sm:p-2 border border-white/50 z-20 hidden sm:block"
               >
@@ -852,8 +797,7 @@ export function MLHeroSection() {
           </div>
         </div>
       </div>
-
-      {/* WhatsApp float button - Responsive positioning */}
+      
       <div
         className="fixed bottom-4 left-4 sm:bottom-6 sm:left-6 z-50"
       >
@@ -867,8 +811,7 @@ export function MLHeroSection() {
           </svg>
         </button>
       </div>
-
-      {/* Auto Popup CTA - Only shows on ML Hero Section */}
+      
       <AutoPopupCTA showOnMLHeroOnly={true} />
     </section>
   );

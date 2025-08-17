@@ -9,20 +9,8 @@ import {
   Eye,
   Sparkles,
   Brain,
-  Code,
-  Database,
-  BarChart3,
-  Globe,
-  Shield,
-  Megaphone,
-  Palette,
   X,
-  User,
-  Mail,
-  Phone,
-  Target,
-  Clock,
-  GraduationCap,
+  Shield,
 } from "lucide-react";
 import axios from "axios";
 import { CourseCard } from "./course-card";
@@ -81,16 +69,23 @@ export function FeaturedCoursesSection() {
     timeCommitment: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isClient) return;
+
     const fetchCourses = async () => {
       try {
         const response = await axios.get("/api/courses");
         const allCourses = response.data.courses || [];
+        
         const isTablet = window.innerWidth >= 768 && window.innerWidth <= 1024;
 
         const count = isTablet ? 4 : 3;
-        // First try to get featured courses, if none exist, get first 3 courses
         const featuredCourses = allCourses.filter(
           (course: Course) => course.featured
         );
@@ -105,7 +100,7 @@ export function FeaturedCoursesSection() {
       }
     };
     fetchCourses();
-  }, []);
+  }, [isClient]);
 
   const handleInputChange = (field: keyof FormData, value: string | string[]) => {
     setFormData(prev => ({
@@ -128,7 +123,6 @@ export function FeaturedCoursesSection() {
     setIsSubmitting(true);
 
     try {
-      // Prepare data for API submission
       const submissionData = {
         formType: "Recommendation",
         name: formData.name,
@@ -140,14 +134,10 @@ export function FeaturedCoursesSection() {
         availability: formData.timeCommitment,
         notes: `Time Commitment: ${formData.timeCommitment}. Goals: ${formData.goals || 'Not specified'}`
       };
-
-      console.log("Submitting recommendation form:", submissionData);
       
-      // Submit to API
       const response = await axios.post("/api/leads", submissionData);
       
       if (response.data.success) {
-        // Show success message and close form
         alert("Thank you! We'll send you personalized recommendations within 24 hours.");
         setShowRecommendationForm(false);
         setFormData({
@@ -171,10 +161,9 @@ export function FeaturedCoursesSection() {
     }
   };
 
-  // Process courses for display
   const displayedCourses = courses.map((course) => ({
     ...course,
-    icon: Brain, // Default icon
+    icon: Brain,
     id: course._id || course.id,
     bgImage: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
     gradient: "from-cyan-500 to-purple-500",
@@ -184,16 +173,9 @@ export function FeaturedCoursesSection() {
   }));
 
   const interestOptions = [
-    "Web Development",
-    "Data Science", 
-    "Machine Learning",
-    "Mobile Development",
-    "Cloud Computing",
-    "Cybersecurity",
-    "UI/UX Design",
-    "Digital Marketing",
-    "DevOps",
-    "Blockchain"
+    "Web Development", "Data Science", "Machine Learning", "Mobile Development",
+    "Cloud Computing", "Cybersecurity", "UI/UX Design", "Digital Marketing",
+    "DevOps", "Blockchain"
   ];
 
   return (
@@ -201,32 +183,24 @@ export function FeaturedCoursesSection() {
       ref={ref}
       className="py-12 md:py-20 bg-gradient-to-br from-black via-gray-900 to-black relative overflow-hidden"
     >
-      {/* Enhanced Background Effects */}
+      {/* Background Effects */}
       <div className="absolute inset-0">
         <motion.div
           className="absolute w-48 h-48 sm:w-72 sm:h-72 lg:w-96 lg:h-96 bg-cyan-500/10 rounded-full blur-3xl"
-          animate={{
-            x: [-50, 50, -50],
-            y: [-50, 50, -50],
-            scale: [1, 1.1, 1],
-          }}
+          animate={{ x: [-50, 50, -50], y: [-50, 50, -50], scale: [1, 1.1, 1] }}
           transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
           style={{ left: "10%", top: "20%" }}
         />
         <motion.div
           className="absolute w-48 h-48 sm:w-72 sm:h-72 lg:w-96 lg:h-96 bg-purple-500/10 rounded-full blur-3xl"
-          animate={{
-            x: [50, -50, 50],
-            y: [50, -50, 50],
-            scale: [1.1, 1, 1.1],
-          }}
+          animate={{ x: [50, -50, 50], y: [50, -50, 50], scale: [1.1, 1, 1.1] }}
           transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
           style={{ right: "10%", bottom: "20%" }}
         />
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
-        {/* Enhanced Header */}
+        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
@@ -251,7 +225,7 @@ export function FeaturedCoursesSection() {
           </p>
         </motion.div>
 
-        {/* Courses Grid - Always show in 3-column layout */}
+        {/* Courses Grid */}
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
@@ -268,7 +242,7 @@ export function FeaturedCoursesSection() {
           ))}
         </motion.div>
 
-        {/* "View All Courses" Button - Very Small Gap */}
+        {/* "View All Courses" Button */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
@@ -280,7 +254,6 @@ export function FeaturedCoursesSection() {
               onClick={() => (window.location.href = "/courses")}
               className="group bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-400 hover:to-purple-400 text-white font-semibold px-6 sm:px-8 py-3 sm:py-4 rounded-xl shadow-lg hover:shadow-cyan-500/25 transition-all duration-300 relative overflow-hidden"
             >
-              {/* Button background effect */}
               <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
               <div className="relative flex items-center gap-2">
@@ -300,7 +273,6 @@ export function FeaturedCoursesSection() {
           className="text-center"
         >
           <div className="bg-gradient-to-br from-gray-900/80 to-black/80 backdrop-blur-xl rounded-2xl border border-gray-700/50 p-6 sm:p-8 lg:p-10 shadow-2xl relative overflow-hidden">
-            {/* Background decoration */}
             <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 via-purple-500/5 to-pink-500/5 opacity-50" />
             <div className="absolute -top-4 -right-4 w-24 h-24 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 rounded-full blur-xl" />
             <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-full blur-xl" />
@@ -354,160 +326,159 @@ export function FeaturedCoursesSection() {
         </motion.div>
       </div>
 
-
       <AnimatePresence>
-  {showRecommendationForm && (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) {
-          setShowRecommendationForm(false);
-        }
-      }}
-    >
-      <motion.div
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.9, opacity: 0 }}
-        className="bg-gradient-to-br from-gray-900 to-black border border-gray-700/50 rounded-2xl max-w-md sm:max-w-lg w-full shadow-2xl max-h-[85vh] sm:max-h-[90vh] overflow-hidden flex flex-col"
-      >
-        {/* Header - Fixed */}
-        <div className="flex justify-between items-start p-4 sm:p-6 pb-0 flex-shrink-0">
-          <div>
-            <h3 className="text-lg sm:text-xl font-bold text-white mb-1">
-              Get Personalized Recommendations
-            </h3>
-            <p className="text-gray-400 text-xs sm:text-sm">
-              Tell us about yourself for perfect course matches
-            </p>
-          </div>
-          <button
-            onClick={() => setShowRecommendationForm(false)}
-            className="text-gray-400 hover:text-white transition-colors p-1"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        {/* Scrollable Form Content */}
-        <div className="flex-1 overflow-y-auto scrollbar-hide px-4 sm:px-6 pb-4 sm:pb-6">
-          <form onSubmit={handleSubmitRecommendation} className="flex flex-col gap-3 pt-4 sm:pt-6">
-            {/* Personal Information */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <input
-                type="text"
-                required
-                value={formData.name}
-                onChange={(e) => handleInputChange('name', e.target.value)}
-                className="bg-gray-800/70 border border-gray-600/60 text-white text-xs sm:text-sm rounded-lg py-2 px-3 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
-                placeholder="Full Name *"
-              />
-              
-              <input
-                type="email"
-                required
-                value={formData.email}
-                onChange={(e) => handleInputChange('email', e.target.value)}
-                className="bg-gray-800/70 border border-gray-600/60 text-white text-xs sm:text-sm rounded-lg py-2 px-3 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
-                placeholder="Email Address *"
-              />
-            </div>
-
-            <input
-              type="tel"
-              value={formData.phone}
-              onChange={(e) => handleInputChange('phone', e.target.value)}
-              className="bg-gray-800/70 border border-gray-600/60 text-white text-xs sm:text-sm rounded-lg py-2 px-3 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
-              placeholder="Phone Number"
-            />
-
-            {/* Experience Level */}
-            <select
-              required
-              value={formData.currentLevel}
-              onChange={(e) => handleInputChange('currentLevel', e.target.value)}
-              className="bg-gray-800/70 border border-gray-600/60 text-white text-xs sm:text-sm rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
+        {showRecommendationForm && (
+            <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4"
+            onClick={(e) => {
+                if (e.target === e.currentTarget) {
+                setShowRecommendationForm(false);
+                }
+            }}
             >
-              <option value="">Experience Level *</option>
-              <option value="Beginner">Beginner</option>
-              <option value="Intermediate">Intermediate</option>
-              <option value="Advanced">Advanced</option>
-            </select>
-
-            {/* Time Commitment */}
-            <select
-              required
-              value={formData.timeCommitment}
-              onChange={(e) => handleInputChange('timeCommitment', e.target.value)}
-              className="bg-gray-800/70 border border-gray-600/60 text-white text-xs sm:text-sm rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
+            <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                className="bg-gradient-to-br from-gray-900 to-black border border-gray-700/50 rounded-2xl max-w-md sm:max-w-lg w-full shadow-2xl max-h-[85vh] sm:max-h-[90vh] overflow-hidden flex flex-col"
             >
-              <option value="">Time Commitment *</option>
-              <option value="1-3 hours/week">1-3 hours/week</option>
-              <option value="4-6 hours/week">4-6 hours/week</option>
-              <option value="7-10 hours/week">7-10 hours/week</option>
-              <option value="10+ hours/week">10+ hours/week</option>
-            </select>
-
-            {/* Interests */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {interestOptions.map((interest) => (
+                {/* Header - Fixed */}
+                <div className="flex justify-between items-start p-4 sm:p-6 pb-0 flex-shrink-0">
+                <div>
+                    <h3 className="text-lg sm:text-xl font-bold text-white mb-1">
+                    Get Personalized Recommendations
+                    </h3>
+                    <p className="text-gray-400 text-xs sm:text-sm">
+                    Tell us about yourself for perfect course matches
+                    </p>
+                </div>
                 <button
-                  key={interest}
-                  type="button"
-                  onClick={() => handleInterestToggle(interest)}
-                  className={`p-2 text-xs rounded-lg border transition-all ${
-                    formData.interests.includes(interest)
-                      ? 'border-purple-500 bg-purple-500/20 text-purple-300'
-                      : 'border-gray-600 bg-gray-800/30 text-gray-300 hover:border-gray-500'
-                  }`}
+                    onClick={() => setShowRecommendationForm(false)}
+                    className="text-gray-400 hover:text-white transition-colors p-1"
                 >
-                  {interest}
+                    <X className="w-5 h-5" />
                 </button>
-              ))}
-            </div>
-
-            {/* Goals */}
-            <textarea
-              value={formData.goals}
-              onChange={(e) => handleInputChange('goals', e.target.value)}
-              className="bg-gray-800/70 border border-gray-600/60 text-white text-xs sm:text-sm rounded-lg py-2 px-3 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all h-16 resize-none"
-              placeholder="What are your learning goals? (optional)"
-            />
-
-            {/* Submit Button */}
-            <Button
-              type="submit"
-              disabled={isSubmitting || !formData.name || !formData.email || !formData.currentLevel || !formData.timeCommitment}
-              className="w-full bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-400 hover:to-purple-400 disabled:from-gray-600 disabled:to-gray-700 text-white font-semibold py-2 px-4 rounded-lg text-xs sm:text-sm transition-all duration-300 shadow-lg hover:shadow-cyan-500/25 disabled:cursor-not-allowed mt-2"
-            >
-              {isSubmitting ? (
-                <div className="flex items-center gap-2 justify-center">
-                  <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  <span>Processing...</span>
                 </div>
-              ) : (
-                <div className="flex items-center gap-2 justify-center">
-                  <Brain className="w-4 h-4" />
-                  <span>Get My Recommendations</span>
-                </div>
-              )}
-            </Button>
 
-            <div className="flex items-center justify-center gap-2 mt-2 text-xs text-gray-400">
-              <Shield className="w-3 h-3" />
-              <span>Secure</span>
-              <span className="h-1 w-1 bg-gray-600 rounded-full" />
-              <span>No Spam</span>
-            </div>
-          </form>
-        </div>
-      </motion.div>
-    </motion.div>
-  )}
-</AnimatePresence>
+                {/* Scrollable Form Content */}
+                <div className="flex-1 overflow-y-auto scrollbar-hide px-4 sm:px-6 pb-4 sm:pb-6">
+                <form onSubmit={handleSubmitRecommendation} className="flex flex-col gap-3 pt-4 sm:pt-6">
+                    {/* Personal Information */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <input
+                        type="text"
+                        required
+                        value={formData.name}
+                        onChange={(e) => handleInputChange('name', e.target.value)}
+                        className="bg-gray-800/70 border border-gray-600/60 text-white text-xs sm:text-sm rounded-lg py-2 px-3 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
+                        placeholder="Full Name *"
+                    />
+                    
+                    <input
+                        type="email"
+                        required
+                        value={formData.email}
+                        onChange={(e) => handleInputChange('email', e.target.value)}
+                        className="bg-gray-800/70 border border-gray-600/60 text-white text-xs sm:text-sm rounded-lg py-2 px-3 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
+                        placeholder="Email Address *"
+                    />
+                    </div>
+
+                    <input
+                    type="tel"
+                    value={formData.phone}
+                    onChange={(e) => handleInputChange('phone', e.target.value)}
+                    className="bg-gray-800/70 border border-gray-600/60 text-white text-xs sm:text-sm rounded-lg py-2 px-3 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
+                    placeholder="Phone Number"
+                    />
+
+                    {/* Experience Level */}
+                    <select
+                    required
+                    value={formData.currentLevel}
+                    onChange={(e) => handleInputChange('currentLevel', e.target.value)}
+                    className="bg-gray-800/70 border border-gray-600/60 text-white text-xs sm:text-sm rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
+                    >
+                    <option value="">Experience Level *</option>
+                    <option value="Beginner">Beginner</option>
+                    <option value="Intermediate">Intermediate</option>
+                    <option value="Advanced">Advanced</option>
+                    </select>
+
+                    {/* Time Commitment */}
+                    <select
+                    required
+                    value={formData.timeCommitment}
+                    onChange={(e) => handleInputChange('timeCommitment', e.target.value)}
+                    className="bg-gray-800/70 border border-gray-600/60 text-white text-xs sm:text-sm rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
+                    >
+                    <option value="">Time Commitment *</option>
+                    <option value="1-3 hours/week">1-3 hours/week</option>
+                    <option value="4-6 hours/week">4-6 hours/week</option>
+                    <option value="7-10 hours/week">7-10 hours/week</option>
+                    <option value="10+ hours/week">10+ hours/week</option>
+                    </select>
+
+                    {/* Interests */}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    {interestOptions.map((interest) => (
+                        <button
+                        key={interest}
+                        type="button"
+                        onClick={() => handleInterestToggle(interest)}
+                        className={`p-2 text-xs rounded-lg border transition-all ${
+                            formData.interests.includes(interest)
+                            ? 'border-purple-500 bg-purple-500/20 text-purple-300'
+                            : 'border-gray-600 bg-gray-800/30 text-gray-300 hover:border-gray-500'
+                        }`}
+                        >
+                        {interest}
+                        </button>
+                    ))}
+                    </div>
+
+                    {/* Goals */}
+                    <textarea
+                    value={formData.goals}
+                    onChange={(e) => handleInputChange('goals', e.target.value)}
+                    className="bg-gray-800/70 border border-gray-600/60 text-white text-xs sm:text-sm rounded-lg py-2 px-3 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all h-16 resize-none"
+                    placeholder="What are your learning goals? (optional)"
+                    />
+
+                    {/* Submit Button */}
+                    <Button
+                    type="submit"
+                    disabled={isSubmitting || !formData.name || !formData.email || !formData.currentLevel || !formData.timeCommitment}
+                    className="w-full bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-400 hover:to-purple-400 disabled:from-gray-600 disabled:to-gray-700 text-white font-semibold py-2 px-4 rounded-lg text-xs sm:text-sm transition-all duration-300 shadow-lg hover:shadow-cyan-500/25 disabled:cursor-not-allowed mt-2"
+                    >
+                    {isSubmitting ? (
+                        <div className="flex items-center gap-2 justify-center">
+                        <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <span>Processing...</span>
+                        </div>
+                    ) : (
+                        <div className="flex items-center gap-2 justify-center">
+                        <Brain className="w-4 h-4" />
+                        <span>Get My Recommendations</span>
+                        </div>
+                    )}
+                    </Button>
+
+                    <div className="flex items-center justify-center gap-2 mt-2 text-xs text-gray-400">
+                    <Shield className="w-3 h-3" />
+                    <span>Secure</span>
+                    <span className="h-1 w-1 bg-gray-600 rounded-full" />
+                    <span>No Spam</span>
+                    </div>
+                </form>
+                </div>
+            </motion.div>
+            </motion.div>
+        )}
+        </AnimatePresence>
     </section>
   );
 }
