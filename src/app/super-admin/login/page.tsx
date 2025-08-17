@@ -18,21 +18,31 @@ export default function SuperAdminLogin() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    setIsLoading(true); // Set loading to true
+    setIsLoading(true);
 
-    // --- Mock Authentication ---
-    // In a real app, you would make an API call here.
-    // We add a short delay to simulate a network request.
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    try {
+      const res = await fetch('/api/auth', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username: email, password, role: 'super-admin' }),
+      });
 
-    if (email === 'admin@example.com' && password === 'password') {
-      localStorage.setItem('superAdminAuth', 'true');
-      router.push('/super-admin');
-    } else {
-      setError('Invalid email or password.');
+      const data = await res.json();
+
+      if (data.success) {
+        localStorage.setItem('superAdminAuth', 'true');
+        localStorage.setItem('token', data.token); // Store the token
+        router.push('/super-admin');
+      } else {
+        setError(data.message || 'An error occurred.');
+      }
+    } catch (err) {
+      setError('Failed to connect to the server.');
+    } finally {
+      setIsLoading(false);
     }
-    
-    setIsLoading(false); // Set loading to false
   };
 
   return (
@@ -55,7 +65,7 @@ export default function SuperAdminLogin() {
               <div className="space-y-3">
                 <Input
                   type="email"
-                  placeholder="Email (admin@example.com)"
+                  placeholder="Email (superadmin@example.com)"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="bg-gray-800/50 border-gray-700 focus:border-cyan-500"
@@ -64,7 +74,7 @@ export default function SuperAdminLogin() {
                 />
                 <Input
                   type="password"
-                  placeholder="Password (password)"
+                  placeholder="Password (superadminpassword)"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="bg-gray-800/50 border-gray-700 focus:border-cyan-500"
@@ -78,8 +88,8 @@ export default function SuperAdminLogin() {
                   <p>{error}</p>
                 </div>
               )}
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 className="w-full bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700"
                 disabled={isLoading} // Disable button while loading
               >

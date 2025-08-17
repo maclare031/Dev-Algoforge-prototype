@@ -8,7 +8,7 @@ export interface IUser {
   password: string;
   firstName: string;
   lastName: string;
-  role: 'student' | 'admin';
+  role: 'student' | 'admin' | 'super-admin'; // Added 'super-admin'
   avatar?: string;
   isActive: boolean;
   lastLogin?: Date;
@@ -64,7 +64,7 @@ const userSchema = new mongoose.Schema<IUser, mongoose.Model<IUser>, IUserMethod
   },
   role: {
     type: String,
-    enum: ['student', 'admin'],
+    enum: ['student', 'admin', 'super-admin'], // Added 'super-admin'
     default: 'student',
     required: [true, 'Role is required']
   },
@@ -111,7 +111,6 @@ const userSchema = new mongoose.Schema<IUser, mongoose.Model<IUser>, IUserMethod
 
 // Indexes
 userSchema.index({ email: 1 });
-userSchema.index({ username: 1 });
 userSchema.index({ role: 1 });
 
 // Pre-save middleware to hash password

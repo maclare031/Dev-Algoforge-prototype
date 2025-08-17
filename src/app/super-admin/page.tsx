@@ -369,11 +369,11 @@ export default function SuperAdminDashboard() {
                                 </div>
                             </div>
                             <div className="flex items-center gap-2">
-                                <Link href="/courses">
+                                <Link href="/admin/courses">
                                     <Button variant="outline"><BookOpen className="w-4 h-4 mr-2" />Courses</Button>
                                 </Link>
                                 {/* ADD THIS NEW LINK AND BUTTON */}
-                                <Link href="/careers">
+                                <Link href="/admin/careers">
                                     <Button variant="outline"><Briefcase className="w-4 h-4 mr-2" />Careers</Button>
                                 </Link>
                                 <Button variant="outline"><Download className="h-4 w-4 mr-2" />Export</Button>
