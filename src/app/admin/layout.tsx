@@ -12,5 +12,6 @@ export default function AdminLayout({
     <AuthGuard requiredRole="admin">
       {children}
     </AuthGuard>
+    
   );
 }
