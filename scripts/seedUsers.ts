@@ -14,7 +14,7 @@ const seedUsers = async () => {
     const superAdminUser = new User({
         username: 'superadmin',
         email: 'superadmin@example.com',
-        password: 'superadminpassword',
+        password: process.env.SUPER_ADMIN_PASSWORD, // Use environment variable or default password
         firstName: 'Super',
         lastName: 'Admin',
         role: 'super-admin',

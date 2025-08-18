@@ -22,7 +22,7 @@ const createSuperAdmin = async () => {
     const superAdminUser = new User({
         username: 'superadmin',
         email: 'superadmin@example.com',
-        password: 'superadminpassword',
+        password:  process.env.SUPER_ADMIN_PASSWORD , // Use environment variable or default password
         firstName: 'Super',
         lastName: 'Admin',
         role: 'super-admin',
@@ -31,7 +31,7 @@ const createSuperAdmin = async () => {
     });
     await superAdminUser.save();
     console.log('✅ Successfully created super-admin user!');
-    console.log('Credentials: superadmin@example.com / superadminpassword');
+    console.log('Credentials: superadmin@example.com / Algoforge@1980');
 
   } catch (error) {
     console.error('Error creating super admin:', error);

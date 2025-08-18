@@ -14,7 +14,7 @@ const seedUsers = async () => {
     const adminUser = new User({
       username: 'algoforge',
       email: 'admin@algoforgestudios.com',
-      password: 'Algoforge@1980',
+      password: process.env.ADMIN_PASSWORD,
       firstName: 'AlgoForge',
       lastName: 'Admin',
       role: 'admin',
