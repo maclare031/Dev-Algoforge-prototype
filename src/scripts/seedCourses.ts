@@ -54,8 +54,8 @@ async function seedCourses() {
     console.log('✅ Connected to database');
     
     // Clear existing courses
-    await Course.deleteMany({});
-    console.log('🗑️ Cleared existing courses');
+    // await Course.deleteMany({});
+    // console.log('🗑️ Cleared existing courses');
     
     // Get courses from existing data
     const coursesData = getCourses();

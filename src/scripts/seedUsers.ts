@@ -7,8 +7,8 @@ const seedUsers = async () => {
     console.log('Connected to database');
 
     // Clear existing users
-    await User.deleteMany({});
-    console.log('Cleared existing users');
+    // await User.deleteMany({});
+    // console.log('Cleared existing users');
 
     // Seed admin user
     const adminUser = new User({
