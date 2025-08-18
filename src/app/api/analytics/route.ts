@@ -4,38 +4,24 @@ import { BetaAnalyticsDataClient } from "@google-analytics/data";
 import { NextResponse } from "next/server";
 
 export async function GET() {
-  const gaPrivateKey = process.env.GA_PRIVATE_KEY;
   const clientEmail = process.env.GA_CLIENT_EMAIL;
   const propertyId = process.env.GA_PROPERTY_ID;
+  const gaPrivateKey = process.env.GA_PRIVATE_KEY;
 
-  if (!gaPrivateKey || !clientEmail || !propertyId) {
-    console.error("CRITICAL: Missing Google Analytics environment variables.");
+  if (!clientEmail || !propertyId || !gaPrivateKey) {
+    console.error("CRITICAL: Missing one or more Google Analytics environment variables.");
     return NextResponse.json(
       { success: false, message: "Server configuration error: Missing GA variables." },
       { status: 500 }
     );
   }
 
-  let formattedPrivateKey;
+  // --- THIS IS THE DEFINITIVE VERCEL FIX ---
+  // It takes the single-line string from Vercel and replaces the literal
+  // '\\n' characters with actual newline characters '\n'.
+  const formattedPrivateKey = gaPrivateKey.replace(/\\n/g, '\n');
 
-  // --- THIS LOGIC HANDLES BOTH LOCAL & HOSTED ENVIRONMENTS ---
-  // It checks if the key is the raw multi-line version or the Base64 version.
-  if (gaPrivateKey.startsWith("-----BEGIN PRIVATE KEY-----")) {
-    // If it's the raw key (for local development), use it directly.
-    formattedPrivateKey = gaPrivateKey;
-  } else {
-    // Otherwise, assume it's Base64 encoded (for hosting) and decode it.
-    try {
-      formattedPrivateKey = Buffer.from(gaPrivateKey, 'base64').toString('utf8');
-    } catch (error) {
-      console.error("CRITICAL: Failed to decode Base64 private key. Check if the GA_PRIVATE_KEY variable on your hosting is a valid Base64 string.", error);
-      return NextResponse.json(
-        { success: false, message: "Server configuration error: Invalid private key format." },
-        { status: 500 }
-      );
-    }
-  }
-  
+  // Initialize the client with the now-corrected key.
   const analyticsDataClient = new BetaAnalyticsDataClient({
     credentials: {
       client_email: clientEmail,
