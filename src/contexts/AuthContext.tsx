@@ -1,27 +1,28 @@
 "use client";
 
-import React, { createContext, useContext, useReducer, useEffect, ReactNode, useState } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
 import axios from 'axios';
+import { useRouter } from 'next/navigation';
 import { AuthState, AuthContextType, LoginCredentials, User } from '@/types/auth';
 
-// Auth actions
-type AuthAction = 
+// Auth actions remain the same
+type AuthAction =
   | { type: 'LOGIN_START' }
   | { type: 'LOGIN_SUCCESS'; payload: User }
   | { type: 'LOGIN_FAILURE'; payload: string }
   | { type: 'LOGOUT' }
   | { type: 'CLEAR_ERROR' }
-  | { type: 'RESTORE_SESSION'; payload: User };
+  | { type: 'INITIALIZE'; payload?: User }; // Changed from RESTORE_SESSION
 
-// Initial state
+// Initial state remains the same
 const initialState: AuthState = {
   user: null,
   isAuthenticated: false,
-  isLoading: false,
+  isLoading: true, // Start with isLoading: true to check session
   error: null,
 };
 
-// Reducer
+// Reducer - updated for clarity
 function authReducer(state: AuthState, action: AuthAction): AuthState {
   switch (action.type) {
     case 'LOGIN_START':
@@ -59,11 +60,11 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
         ...state,
         error: null,
       };
-    case 'RESTORE_SESSION':
+    case 'INITIALIZE':
       return {
         ...state,
-        user: action.payload,
-        isAuthenticated: true,
+        user: action.payload || null,
+        isAuthenticated: !!action.payload,
         isLoading: false,
         error: null,
       };
@@ -78,60 +79,45 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 // Provider component
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(authReducer, initialState);
-  const [isInitialized, setIsInitialized] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
+  const router = useRouter();
 
-  // Handle mounting to prevent hydration issues
+  // This effect runs once on mount to check for an active session
   useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  // Restore session on app load - only on client side
-  useEffect(() => {
-    if (!isMounted) return;
-    
-    try {
-      const token = localStorage.getItem('authToken');
-      const userData = localStorage.getItem('userData');
-      
-      if (token && userData) {
-        const user: User = JSON.parse(userData);
-        dispatch({ type: 'RESTORE_SESSION', payload: user });
+    const checkUserSession = async () => {
+      try {
+        // We call our new 'me' endpoint to see if a valid cookie exists
+        const response = await axios.get('/api/auth/me');
+        if (response.data.success) {
+          dispatch({ type: 'INITIALIZE', payload: response.data.user });
+        } else {
+          dispatch({ type: 'INITIALIZE' });
+        }
+      } catch (error) {
+        // If the request fails (e.g., 401 Unauthorized), there's no active session
+        dispatch({ type: 'INITIALIZE' });
       }
-    } catch (error) {
-      // Clean up invalid data
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('userData');
-    } finally {
-      setIsInitialized(true);
-    }
-  }, [isMounted]);
+    };
+
+    checkUserSession();
+  }, []);
 
   // Login function
   const login = async (credentials: LoginCredentials) => {
     dispatch({ type: 'LOGIN_START' });
-    
     try {
+      // The /api/auth endpoint now sets the HttpOnly cookie automatically
       const response = await axios.post('/api/auth', credentials);
       
       if (response.data.success) {
-        const { user, token } = response.data;
-        
-        // Store in localStorage (client-side only)
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('authToken', token);
-          localStorage.setItem('userData', JSON.stringify(user));
-        }
-        
+        const { user } = response.data;
+        // We no longer need to touch localStorage for tokens
         dispatch({ type: 'LOGIN_SUCCESS', payload: user });
       } else {
-        // Handle case where API returns success: false
         const errorMessage = response.data.message || 'Login failed';
         dispatch({ type: 'LOGIN_FAILURE', payload: errorMessage });
         throw new Error(errorMessage);
       }
     } catch (error: any) {
-      // Handle HTTP errors (4xx, 5xx) and other errors
       const errorMessage = error.response?.data?.message || error.message || 'Login failed';
       dispatch({ type: 'LOGIN_FAILURE', payload: errorMessage });
       throw new Error(errorMessage);
@@ -139,13 +125,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   // Logout function
-  const logout = () => {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('userData');
-      localStorage.removeItem('adminAuth'); // Remove legacy admin auth
+  const logout = async () => {
+    try {
+      // Call the new logout endpoint to clear the cookie on the server
+      await axios.post('/api/auth/logout');
+      dispatch({ type: 'LOGOUT' });
+      router.push('/login'); // Redirect to login after logout
+    } catch (error) {
+      console.error("Logout failed:", error);
+      // Even if the API call fails, log the user out on the client-side
+      dispatch({ type: 'LOGOUT' });
+      router.push('/login');
     }
-    dispatch({ type: 'LOGOUT' });
   };
 
   // Clear error function
@@ -155,8 +146,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const contextValue: AuthContextType = {
     ...state,
-    // Override isLoading to include initialization state
-    isLoading: state.isLoading || !isInitialized,
     login,
     logout,
     clearError,

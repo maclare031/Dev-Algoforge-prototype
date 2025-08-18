@@ -23,24 +23,36 @@ import Link from 'next/link';
 export default function AdminLogin() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null); // Use string type for error
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
-  const handleLogin = async (e) => {
+  const handleLogin = async (e: React.FormEvent) => { // Add type for the event
     e.preventDefault();
     setError(null);
     setIsLoading(true);
-    
+
     try {
-      const response = await axios.post('/api/login', { username, password });
-      if (response.data.authenticated) {
+      // This is the updated logic
+      const response = await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password, role: 'admin' }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
         localStorage.setItem('adminAuth', 'authenticated');
+        // We will remove this later when switching to cookies
+        // localStorage.setItem('token', data.token); 
         router.push('/admin');
+      } else {
+        setError(data.message || 'Invalid credentials. Please check your username and password.');
       }
     } catch (err) {
-      setError('Invalid credentials. Please check your username and password.');
+      setError('Failed to connect to the server.');
     } finally {
       setIsLoading(false);
     }
@@ -271,3 +283,4 @@ export default function AdminLogin() {
     </div>
   );
 }
+// src/app/admin/login/page.tsx

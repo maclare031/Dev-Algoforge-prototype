@@ -33,7 +33,7 @@ export default function SuperAdminLogin() {
 
       if (data.success) {
         localStorage.setItem('superAdminAuth', 'true');
-        localStorage.setItem('token', data.token); // Store the token
+        // localStorage.setItem('token', data.token); // Store the token
         router.push('/super-admin');
       } else {
         setError(data.message || 'An error occurred.');

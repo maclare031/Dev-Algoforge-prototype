@@ -110,8 +110,8 @@ const userSchema = new mongoose.Schema<IUser, mongoose.Model<IUser>, IUserMethod
 });
 
 // Indexes
-userSchema.index({ email: 1 });
-userSchema.index({ role: 1 });
+// userSchema.index({ email: 1 });
+// userSchema.index({ role: 1 });
 
 // Pre-save middleware to hash password
 userSchema.pre('save', async function(next) {
