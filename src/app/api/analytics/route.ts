@@ -4,34 +4,38 @@ import { BetaAnalyticsDataClient } from "@google-analytics/data";
 import { NextResponse } from "next/server";
 
 export async function GET() {
-  // --- All logic is now safely inside the GET function ---
-  
-  // 1. Get and validate environment variables at runtime.
-  const gaPrivateKeyBase64 = process.env.GA_PRIVATE_KEY;
+  const gaPrivateKey = process.env.GA_PRIVATE_KEY;
   const clientEmail = process.env.GA_CLIENT_EMAIL;
   const propertyId = process.env.GA_PROPERTY_ID;
 
-  if (!gaPrivateKeyBase64 || !clientEmail || !propertyId) {
-    console.error("CRITICAL: Missing one or more Google Analytics environment variables.");
+  if (!gaPrivateKey || !clientEmail || !propertyId) {
+    console.error("CRITICAL: Missing Google Analytics environment variables.");
     return NextResponse.json(
-      { success: false, message: "Server configuration error: A required GA environment variable is missing." },
+      { success: false, message: "Server configuration error: Missing GA variables." },
       { status: 500 }
     );
   }
 
   let formattedPrivateKey;
-  try {
-    // 2. Decode the private key.
-    formattedPrivateKey = Buffer.from(gaPrivateKeyBase64, 'base64').toString('utf8');
-  } catch (error) {
-    console.error("CRITICAL: Failed to decode Base64 private key. Check if the GA_PRIVATE_KEY variable is a valid Base64 string.", error);
-    return NextResponse.json(
-      { success: false, message: "Server configuration error: Invalid private key format." },
-      { status: 500 }
-    );
+
+  // --- THIS LOGIC HANDLES BOTH LOCAL & HOSTED ENVIRONMENTS ---
+  // It checks if the key is the raw multi-line version or the Base64 version.
+  if (gaPrivateKey.startsWith("-----BEGIN PRIVATE KEY-----")) {
+    // If it's the raw key (for local development), use it directly.
+    formattedPrivateKey = gaPrivateKey;
+  } else {
+    // Otherwise, assume it's Base64 encoded (for hosting) and decode it.
+    try {
+      formattedPrivateKey = Buffer.from(gaPrivateKey, 'base64').toString('utf8');
+    } catch (error) {
+      console.error("CRITICAL: Failed to decode Base64 private key. Check if the GA_PRIVATE_KEY variable on your hosting is a valid Base64 string.", error);
+      return NextResponse.json(
+        { success: false, message: "Server configuration error: Invalid private key format." },
+        { status: 500 }
+      );
+    }
   }
   
-  // 3. Initialize the client inside the function.
   const analyticsDataClient = new BetaAnalyticsDataClient({
     credentials: {
       client_email: clientEmail,
@@ -40,15 +44,12 @@ export async function GET() {
   });
 
   try {
-    // --- 4. Fetch all analytics data ---
     const [statsResponse] = await analyticsDataClient.runReport({
       property: `properties/${propertyId}`,
       dateRanges: [{ startDate: "28daysAgo", endDate: "today" }],
       metrics: [
-        { name: "totalUsers" },
-        { name: "sessions" },
-        { name: "bounceRate" },
-        { name: "averageSessionDuration" },
+        { name: "totalUsers" }, { name: "sessions" },
+        { name: "bounceRate" }, { name: "averageSessionDuration" },
       ],
     });
 
@@ -92,7 +93,6 @@ export async function GET() {
     });
 
   } catch (error: any) {
-    // This provides a more detailed error message if Google's API fails
     console.error("Error fetching Google Analytics data:", error.details || error.message);
     return NextResponse.json(
       { 
