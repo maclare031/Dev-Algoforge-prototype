@@ -78,7 +78,7 @@ export default function AnalyticsDashboard() {
             <div className="bg-slate-900/50 border border-red-500/30 rounded-2xl p-8 max-w-lg">
                 <h2 className="text-2xl font-bold text-red-400">An Error Occurred</h2>
                 <p className="mt-2 text-slate-400">{error}</p>
-                 <Link href="/">
+                 <Link href="/super-admin">
                     <Button variant="outline" className="mt-6">
                         <ArrowLeft className="h-4 w-4 mr-2" />
                         Back to Admin Dashboard

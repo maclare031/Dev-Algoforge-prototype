@@ -1,24 +1,46 @@
-// app/api/analytics/route.ts
+// src/app/api/analytics/route.ts
 
 import { BetaAnalyticsDataClient } from "@google-analytics/data";
 import { NextResponse } from "next/server";
 
-// FIX: Manually format the private key to handle newlines correctly.
-const formattedPrivateKey = process.env.GA_PRIVATE_KEY?.replace(/\\n/g, '\n');
-
-// Initialize the Google Analytics Data API client
-const analyticsDataClient = new BetaAnalyticsDataClient({
-  credentials: {
-    client_email: process.env.GA_CLIENT_EMAIL,
-    private_key: formattedPrivateKey, // Use the formatted key here
-  },
-});
-
-const propertyId = process.env.GA_PROPERTY_ID;
-
 export async function GET() {
+  // --- All logic is now safely inside the GET function ---
+  
+  // 1. Get and validate environment variables at runtime.
+  const gaPrivateKeyBase64 = process.env.GA_PRIVATE_KEY;
+  const clientEmail = process.env.GA_CLIENT_EMAIL;
+  const propertyId = process.env.GA_PROPERTY_ID;
+
+  if (!gaPrivateKeyBase64 || !clientEmail || !propertyId) {
+    console.error("CRITICAL: Missing one or more Google Analytics environment variables.");
+    return NextResponse.json(
+      { success: false, message: "Server configuration error: A required GA environment variable is missing." },
+      { status: 500 }
+    );
+  }
+
+  let formattedPrivateKey;
   try {
-    // --- 1. Fetch main stats (Users, Sessions, Bounce Rate) ---
+    // 2. Decode the private key.
+    formattedPrivateKey = Buffer.from(gaPrivateKeyBase64, 'base64').toString('utf8');
+  } catch (error) {
+    console.error("CRITICAL: Failed to decode Base64 private key. Check if the GA_PRIVATE_KEY variable is a valid Base64 string.", error);
+    return NextResponse.json(
+      { success: false, message: "Server configuration error: Invalid private key format." },
+      { status: 500 }
+    );
+  }
+  
+  // 3. Initialize the client inside the function.
+  const analyticsDataClient = new BetaAnalyticsDataClient({
+    credentials: {
+      client_email: clientEmail,
+      private_key: formattedPrivateKey,
+    },
+  });
+
+  try {
+    // --- 4. Fetch all analytics data ---
     const [statsResponse] = await analyticsDataClient.runReport({
       property: `properties/${propertyId}`,
       dateRanges: [{ startDate: "28daysAgo", endDate: "today" }],
@@ -37,7 +59,6 @@ export async function GET() {
       avgSessionDuration: parseFloat(statsResponse.rows?.[0]?.metricValues?.[3]?.value || '0').toFixed(2),
     };
 
-    // --- 2. Fetch traffic over time (for the line chart) ---
     const [trafficResponse] = await analyticsDataClient.runReport({
         property: `properties/${propertyId}`,
         dateRanges: [{ startDate: "28daysAgo", endDate: "today" }],
@@ -46,12 +67,10 @@ export async function GET() {
     });
 
     const trafficData = trafficResponse.rows?.map(row => ({
-        date: `${row.dimensionValues?.[0].value?.substring(4, 6)}/${row.dimensionValues?.[0].value?.substring(6, 8)}`, // Format date as MM/DD
+        date: `${row.dimensionValues?.[0].value?.substring(4, 6)}/${row.dimensionValues?.[0].value?.substring(6, 8)}`,
         users: Number(row.metricValues?.[0].value || 0),
     })) || [];
 
-
-    // --- 3. Fetch top referrers ---
     const [referrerResponse] = await analyticsDataClient.runReport({
         property: `properties/${propertyId}`,
         dateRanges: [{ startDate: "28daysAgo", endDate: "today" }],
@@ -65,8 +84,6 @@ export async function GET() {
         visitors: row.metricValues?.[0].value || '0',
     })) || [];
 
-
-    // Return all fetched data
     return NextResponse.json({
       success: true,
       stats,
@@ -74,10 +91,15 @@ export async function GET() {
       topReferrers,
     });
 
-  } catch (error) {
-    console.error("Error fetching Google Analytics data:", error);
+  } catch (error: any) {
+    // This provides a more detailed error message if Google's API fails
+    console.error("Error fetching Google Analytics data:", error.details || error.message);
     return NextResponse.json(
-      { success: false, message: "Failed to fetch analytics data." },
+      { 
+        success: false, 
+        message: "Failed to fetch analytics data from Google.",
+        errorDetails: error.details || error.message 
+      },
       { status: 500 }
     );
   }
