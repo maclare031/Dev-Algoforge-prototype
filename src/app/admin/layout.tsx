@@ -1,18 +1,16 @@
-import "../globals.css";
-import AuthGuard from '../../components/AuthGuard';
+// src/app/admin/layout.tsx
+import { AuthGuard } from "@/components/AuthGuard";
 
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // This layout should only return the necessary components and guards,
+  // NOT the <html> and <body> tags.
   return (
-    <html lang="en">
-      <body className="bg-gradient-to-br from-black via-gray-900 to-black overflow-x-hidden text-white">
-        <AuthGuard>
-          {children}
-        </AuthGuard>
-      </body>
-    </html>
+    <AuthGuard requiredRole="admin">
+      {children}
+    </AuthGuard>
   );
 }

@@ -1,15 +1,16 @@
+// src/components/AuthGuard.tsx
 "use client"
 
 import { useEffect, ReactNode, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useAuth } from '@/contexts/AuthContext'
 import { motion } from 'framer-motion'
+import { useCombinedAuth } from '@/hooks/useCombinedAuth'; // Import our new hook
 
 interface AuthGuardProps {
   children: ReactNode
-  requiredRole?: 'student' | 'admin'
+  requiredRole?: 'student' | 'admin' | 'super-admin'
   redirectTo?: string
-  allowUnauthenticated?: boolean // For pages like login/signup that should redirect if authenticated
+  allowUnauthenticated?: boolean
 }
 
 export function AuthGuard({
@@ -18,62 +19,63 @@ export function AuthGuard({
   redirectTo = '/login',
   allowUnauthenticated = false
 }: AuthGuardProps) {
-  const { isAuthenticated, user, isLoading } = useAuth()
-  const router = useRouter()
-  const [shouldRender, setShouldRender] = useState(false)
-  const [isMounted, setIsMounted] = useState(false)
-
-  // Handle mounting to prevent hydration issues
-  useEffect(() => {
-    setIsMounted(true)
-  }, [])
+  const { isLoggedIn, userRole, isLoading } = useCombinedAuth();
+  const router = useRouter();
+  const [isVerified, setIsVerified] = useState(false);
 
   useEffect(() => {
-    // Wait for component to mount and auth to initialize
-    if (!isMounted || isLoading) {
-      return
+    // Wait until our combined auth hook is done loading
+    if (isLoading) {
+      return;
     }
 
-    // Handle pages that should redirect authenticated users (like login/signup)
-    if (allowUnauthenticated && isAuthenticated && user) {
-      if (user.role === 'admin') {
-        router.push('/admin')
+    // --- Logic for pages that redirect if logged in (e.g., login page) ---
+    if (allowUnauthenticated && isLoggedIn) {
+      if (userRole === 'admin' || userRole === 'super-admin') {
+        router.push('/admin');
       } else {
-        router.push('/')
+        router.push('/');
       }
-      return
+      return;
     }
 
-    // Handle protected routes
+    // --- Logic for protected pages ---
     if (!allowUnauthenticated) {
-      if (!isAuthenticated) {
-        router.push(redirectTo)
-        return
+      // 1. If not logged in, redirect
+      if (!isLoggedIn) {
+        router.push(redirectTo);
+        return;
       }
 
-      if (requiredRole && user?.role !== requiredRole) {
-        // Redirect based on user's actual role
-        if (user?.role === 'admin') {
-          router.push('/admin')
-        } else {
-          router.push('/dashboard')
+      // 2. If a role is required, check authorization
+      if (requiredRole) {
+        const hasRequiredRole = userRole === requiredRole;
+        const isSuperAdminAccessingAdminRoute = userRole === 'super-admin' && requiredRole === 'admin';
+
+        if (!hasRequiredRole && !isSuperAdminAccessingAdminRoute) {
+          // If not authorized, redirect to a default page
+          if (userRole === 'admin' || userRole === 'super-admin') {
+            router.push('/admin');
+          } else {
+            router.push('/dashboard');
+          }
+          return;
         }
-        return
       }
     }
 
-    setShouldRender(true)
-  }, [isAuthenticated, user, requiredRole, redirectTo, router, allowUnauthenticated, isLoading, isMounted])
+    // If all checks pass, allow rendering
+    setIsVerified(true);
 
-  // Show loading spinner while mounting, auth is initializing, or redirecting
-  if (!isMounted || isLoading || !shouldRender) {
+  }, [isLoggedIn, userRole, isLoading, router, requiredRole, redirectTo, allowUnauthenticated]);
+
+  // Show a loading screen while auth is being verified
+  if (isLoading || !isVerified) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black flex items-center justify-center">
         <motion.div
           className="flex flex-col items-center space-y-4"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}
         >
           <motion.div
             className="w-12 h-12 border-4 border-cyan-500/30 border-t-cyan-500 rounded-full"
@@ -86,8 +88,7 @@ export function AuthGuard({
     )
   }
 
-  return <>{children}</>
+  return <>{children}</>;
 }
 
-// Default export for convenience
-export default AuthGuard
+export default AuthGuard;
