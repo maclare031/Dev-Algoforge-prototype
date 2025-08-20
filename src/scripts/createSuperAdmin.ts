@@ -1,4 +1,4 @@
-import { dbConnect } from '@/lib/db';
+import dbConnect from '@/lib/db';
 import User from '@/models/User';
 
 const createSuperAdmin = async () => {

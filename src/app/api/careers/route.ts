@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
-import { dbConnect } from '@/lib/db';
+import  dbConnect  from '@/lib/db';
 import Career from '@/models/Career';
 
 const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'resumes');

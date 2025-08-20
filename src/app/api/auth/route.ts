@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import jwt from 'jsonwebtoken';
-import { dbConnect } from '@/lib/db';
+// NEW - Correct
+import dbConnect from '@/lib/db';
 import User from '@/models/User';
 import { serialize } from 'cookie'; // Import serialize
 

@@ -3,58 +3,45 @@
 import { NextResponse } from "next/server";
 import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
-
-// Mock users database
-const USERS = {
-  admin: {
-    id: 'admin-1',
-    username: 'algoforge',
-    password: process.env.ADMIN_PASSWORD,
-    role: 'admin',
-    name: 'AlgoForge Admin'
-  },
-  students: [
-    {
-      id: 'student-1',
-      username: 'student1',
-      password: 'Student@123',
-      role: 'student',
-      name: 'John Doe'
-    },
-  ]
-};
+import dbConnect from "@/lib/db";
+import User from "@/models/User";
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 export async function POST(request) {
   try {
-    const { username, password, role } = await request.json();
+    await dbConnect();
+
+    const { username, password, role } = await request.json(); // Keep the role
 
     if (!username || !password || !role) {
       return NextResponse.json({ message: 'All fields are required' }, { status: 400 });
     }
 
-    let user = null;
-    if (role === 'admin') {
-      if (username === USERS.admin.username && password === USERS.admin.password) {
-        user = { ...USERS.admin };
-      }
-    } else if (role === 'student') {
-      const foundStudent = USERS.students.find(s => s.username === username && s.password === password);
-      if (foundStudent) {
-        user = { ...foundStudent };
-      }
+    // Use the findByCredentials method, but find the user first with the role
+    const user = await User.findOne({ 
+        $or: [{ username: username }, { email: username }], 
+        role: role // Add role to the query
+    }).select('+password');
+    
+    if (!user) {
+        throw new Error('Invalid credentials');
     }
 
-    if (!user) {
-      return NextResponse.json({ message: 'Invalid credentials' }, { status: 401 });
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
+        throw new Error('Invalid credentials');
     }
-    
-    // @ts-ignore
-    delete user.password;
+
+    const userPayload = {
+      id: user._id,
+      username: user.username,
+      role: user.role,
+      name: user.getFullName(),
+    };
 
     const token = jwt.sign(
-      { id: user.id, username: user.username, role: user.role, name: user.name },
+      userPayload,
       JWT_SECRET,
       { expiresIn: '24h' }
     );
@@ -67,9 +54,12 @@ export async function POST(request) {
       maxAge: 60 * 60 * 24, // 24 hours
     });
 
-    return NextResponse.json({ success: true, user });
+    return NextResponse.json({ success: true, user: userPayload });
 
   } catch (error) {
+    if (error.message === 'Invalid credentials') {
+      return NextResponse.json({ message: error.message }, { status: 401 });
+    }
     return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
   }
 }

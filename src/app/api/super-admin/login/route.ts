@@ -4,10 +4,13 @@ import { NextResponse } from "next/server";
 import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
 
+// Fetch credentials from environment variables
 const SUPER_ADMIN = {
   id: 'super-admin-1',
-  email: 'superadmin@algoforge.com',
-  password: 'SuperAdmin@1980', // In a real app, use a hashed password
+  // Use the email from your creation script
+  email: 'superadmin@example.com',
+  // Use the password from your .env.local file
+  password: process.env.SUPER_ADMIN_PASSWORD || 'Algoforge@1980',
   role: 'super-admin',
   name: 'Super Admin'
 };
@@ -15,6 +18,7 @@ const SUPER_ADMIN = {
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 export async function POST(request: Request) {
+  // ... rest of the file remains the same{
   try {
     const { email, password } = await request.json();
 

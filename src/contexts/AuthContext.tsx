@@ -71,12 +71,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     checkUserSession();
   }, []);
 
-  const login = async (credentials: LoginCredentials) => {
+const login = async (credentials: LoginCredentials) => {
     dispatch({ type: 'LOGIN_START' });
     try {
-      const { data } = await axios.post('/api/login', credentials);
+      // FIX: Change '/api/login' to '/api/auth'
+      const { data } = await axios.post('/api/auth', credentials); 
+      
       dispatch({ type: 'LOGIN_SUCCESS', payload: data.user });
       
+      // This logic will now work correctly
       if (data.user.role === 'admin') {
         router.push('/admin');
       } else {
