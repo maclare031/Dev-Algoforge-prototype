@@ -1,3 +1,4 @@
+// src/contexts/AuthContext.tsx
 "use client";
 
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
@@ -125,24 +126,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   // Logout function
-  const logout = async () => {
-    try {
-      // Call the new logout endpoint to clear the cookie on the server
-      await axios.post('/api/auth/logout');
-      dispatch({ type: 'LOGOUT' });
-      router.push('/login'); // Redirect to login after logout
-    } catch (error) {
-      console.error("Logout failed:", error);
-      // Even if the API call fails, log the user out on the client-side
-      dispatch({ type: 'LOGOUT' });
-      router.push('/login');
-    }
-  };
+const logout = async () => {
+  try {
+    // Call the logout endpoint to clear the cookie on the server
+    await axios.post('/api/auth/logout');
+    
+    // Dispatch the LOGOUT action to update the state via the reducer
+    dispatch({ type: 'LOGOUT' });
 
-  // Clear error function
-  const clearError = () => {
-    dispatch({ type: 'CLEAR_ERROR' });
-  };
+    // Use window.location.href to force a full page reload and clear caches
+    // This will redirect to your home page or login page as needed
+    window.location.href = '/login'; 
+    
+  } catch (error) {
+    console.error("Logout failed:", error);
+    // Even if the API call fails, ensure the user is logged out on the client-side
+    dispatch({ type: 'LOGOUT' });
+    window.location.href = '/login';
+  }
+};
+
+// Clear error function
+const clearError = () => {
+  dispatch({ type: 'CLEAR_ERROR' });
+};
 
   const contextValue: AuthContextType = {
     ...state,
