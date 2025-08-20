@@ -1,4 +1,4 @@
-import { dbConnect } from '@/lib/db';
+import dbConnect  from '@/lib/db';
 import User from '@/models/User';
 
 const seedUsers = async () => {
@@ -8,13 +8,13 @@ const seedUsers = async () => {
 
     // Clear existing users
     // await User.deleteMany({});
-    // console.log('Cleared existing users');
+    console.log('Cleared existing users');
 
     // Seed admin user
     const adminUser = new User({
       username: 'algoforge',
       email: 'admin@algoforgestudios.com',
-      password: process.env.ADMIN_PASSWORD,
+      password: 'Algoforge@1980',
       firstName: 'AlgoForge',
       lastName: 'Admin',
       role: 'admin',

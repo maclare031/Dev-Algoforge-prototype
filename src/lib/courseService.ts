@@ -1,4 +1,4 @@
-import { dbConnect } from './db';
+import  dbConnect  from './db';
 import Course from '@/models/Course';
 import { Course as CourseType, CourseCategory, NavigationCourseCategory, NavigationCourse } from '@/types/course';
 import {

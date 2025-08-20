@@ -1,14 +1,15 @@
-import mongoose from 'mongoose';
-import bcrypt from 'bcryptjs';
+// src/models/User.ts
 
-export interface IUser {
-  _id: string;
+import mongoose, { Model, Schema } from 'mongoose';
+import bcrypt from 'bcrypt'; // Use bcrypt instead of bcryptjs
+// Interface for User document
+export interface IUser extends mongoose.Document {
   username: string;
   email: string;
-  password: string;
+  password?: string; // Optional because it will be removed in toJSON
   firstName: string;
   lastName: string;
-  role: 'student' | 'admin' | 'super-admin'; // Added 'super-admin'
+  role: 'student' | 'admin' | 'super-admin';
   avatar?: string;
   isActive: boolean;
   lastLogin?: Date;
@@ -18,15 +19,19 @@ export interface IUser {
   emailVerificationToken?: string;
   createdAt: Date;
   updatedAt: Date;
-}
 
-export interface IUserMethods {
+  // Methods
   comparePassword(candidatePassword: string): Promise<boolean>;
   getFullName(): string;
   getInitials(): string;
 }
 
-const userSchema = new mongoose.Schema<IUser, mongoose.Model<IUser>, IUserMethods>({
+// Interface for User model statics
+export interface IUserModel extends Model<IUser> {
+  findByCredentials(identifier: string, password: string): Promise<IUser>;
+}
+
+const userSchema = new Schema<IUser, IUserModel>({
   username: {
     type: String,
     required: [true, 'Username is required'],
@@ -64,7 +69,7 @@ const userSchema = new mongoose.Schema<IUser, mongoose.Model<IUser>, IUserMethod
   },
   role: {
     type: String,
-    enum: ['student', 'admin', 'super-admin'], // Added 'super-admin'
+    enum: ['student', 'admin', 'super-admin'],
     default: 'student',
     required: [true, 'Role is required']
   },
@@ -109,17 +114,11 @@ const userSchema = new mongoose.Schema<IUser, mongoose.Model<IUser>, IUserMethod
   }
 });
 
-// Indexes
-// userSchema.index({ email: 1 });
-// userSchema.index({ role: 1 });
-
 // Pre-save middleware to hash password
 userSchema.pre('save', async function(next) {
-  // Only hash the password if it has been modified (or is new)
-  if (!this.isModified('password')) return next();
+  if (!this.isModified('password') || !this.password) return next();
 
   try {
-    // Hash password with cost of 12
     const salt = await bcrypt.genSalt(12);
     this.password = await bcrypt.hash(this.password, salt);
     next();
@@ -128,8 +127,11 @@ userSchema.pre('save', async function(next) {
   }
 });
 
-// Instance method to compare password
+// Method to compare password
 userSchema.methods.comparePassword = async function(candidatePassword: string): Promise<boolean> {
+  if (!this.password) {
+    return false;
+  }
   try {
     return await bcrypt.compare(candidatePassword, this.password);
   } catch (error) {
@@ -137,19 +139,18 @@ userSchema.methods.comparePassword = async function(candidatePassword: string): 
   }
 };
 
-// Instance method to get full name
+// Method to get full name
 userSchema.methods.getFullName = function(): string {
   return `${this.firstName} ${this.lastName}`;
 };
 
-// Instance method to get initials
+// Method to get initials
 userSchema.methods.getInitials = function(): string {
   return `${this.firstName.charAt(0).toUpperCase()}${this.lastName.charAt(0).toUpperCase()}`;
 };
 
 // Static method to find user by credentials
 userSchema.statics.findByCredentials = async function(identifier: string, password: string) {
-  // Find user by username or email
   const user = await this.findOne({
     $or: [
       { username: identifier },
@@ -170,8 +171,6 @@ userSchema.statics.findByCredentials = async function(identifier: string, passwo
   return user;
 };
 
-const User = mongoose.models.User || mongoose.model<IUser, mongoose.Model<IUser> & {
-  findByCredentials(identifier: string, password: string): Promise<IUser & IUserMethods>;
-}>('User', userSchema);
+const User = (mongoose.models.User as IUserModel) || mongoose.model<IUser, IUserModel>('User', userSchema);
 
 export default User;
