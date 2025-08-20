@@ -128,6 +128,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Logout function
 // In src/contexts/AuthContext.tsx
 
+// In src/contexts/AuthContext.tsx
+
 const logout = async () => {
   try {
     // 1. Clears the main user's cookie on the server
