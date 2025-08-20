@@ -20,6 +20,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { InstructorDetailModal } from '@/components/InstructorDetailModal';
 import { InstructorConfirmationModal } from '@/components/InstructorConfirmationModel';
 import { ClientOnlyDate } from '@/components/ClientOnlyDate';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext'; // 1. Import the main useAuth hook
 
 // --- TYPE DEFINITIONS ---
@@ -167,21 +168,12 @@ export default function SuperAdminDashboard() {
     const currentView = viewData[activeView];
     const viewsWithoutAddButton = ['leads', 'scheduleCalls', 'joinProjects'];
 
-    const handleLogout = async () => {
-        try {
-            // This is the key: Call the main app's logout function first
-            await mainAppLogout();
-
-            // Any other super-admin specific cleanup can go here
-            // For example: localStorage.removeItem('superAdminToken');
-
-        } catch (error) {
-            console.error("Logout failed:", error);
-        } finally {
-            // Finally, force a hard redirect to the super-admin login page
-            // This ensures all user states are cleared from the browser
-            window.location.href = '/super-admin/login';
-        }
+    const handleLogout = () => {
+        // This now calls the master logout function which handles everything:
+        // - logging out the main user
+        // - logging out the superadmin
+        // - redirecting to the correct /login page
+        mainAppLogout();
     };
     const handleViewStudent = (student: Student) => {
         setSelectedStudent(student);

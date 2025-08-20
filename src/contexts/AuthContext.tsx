@@ -130,20 +130,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 const logout = async () => {
   try {
-    // 1. This clears the main user's cookie on the server
+    // 1. Clears the main user's cookie on the server
     await axios.post('/api/auth/logout');
   } catch (error) {
     console.error("Logout API call failed:", error);
   } finally {
-    // 2. This clears the main user's state in the app
+    // 2. Clears the main user's state in the app
     dispatch({ type: 'LOGOUT' });
 
     // --- THIS IS THE FIX ---
-    // 3. This explicitly removes the super admin's session from the browser
+    // 3. Explicitly removes the super admin's session from the browser
     localStorage.removeItem('superAdminAuth');
-    // --- END OF FIX ---
 
-    // 4. This forces a full page reload to ensure everything is reset
+    // 4. Forces a full page reload to the correct user login page
     window.location.href = '/login'; 
   }
 };
