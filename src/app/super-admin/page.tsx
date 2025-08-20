@@ -20,6 +20,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { InstructorDetailModal } from '@/components/InstructorDetailModal';
 import { InstructorConfirmationModal } from '@/components/InstructorConfirmationModel';
 import { ClientOnlyDate } from '@/components/ClientOnlyDate';
+import { useAuth } from '@/contexts/AuthContext'; // 1. Import the main useAuth hook
 
 // --- TYPE DEFINITIONS ---
 interface Lead {
@@ -60,7 +61,7 @@ interface Course {
     _id: string;
     title: string;
     instructor: string;
-    students: string; 
+    students: string;
     status: string;
     createdAt: string;
 }
@@ -123,6 +124,8 @@ export default function SuperAdminDashboard() {
     const [selectedInstructor, setSelectedInstructor] = useState<Instructor | null>(null);
     const [instructorToDelete, setInstructorToDelete] = useState<Instructor | null>(null);
     const router = useRouter();
+    const { logout: mainAppLogout } = useAuth(); // 2. Get the logout function from the main context
+
 
     useEffect(() => {
         const fetchDashboardData = async () => {
@@ -164,9 +167,21 @@ export default function SuperAdminDashboard() {
     const currentView = viewData[activeView];
     const viewsWithoutAddButton = ['leads', 'scheduleCalls', 'joinProjects'];
 
-    const handleLogout = () => {
-        localStorage.removeItem('superAdminAuth');
-        router.push('/super-admin/login');
+    const handleLogout = async () => {
+        try {
+            // This is the key: Call the main app's logout function first
+            await mainAppLogout();
+
+            // Any other super-admin specific cleanup can go here
+            // For example: localStorage.removeItem('superAdminToken');
+
+        } catch (error) {
+            console.error("Logout failed:", error);
+        } finally {
+            // Finally, force a hard redirect to the super-admin login page
+            // This ensures all user states are cleared from the browser
+            window.location.href = '/super-admin/login';
+        }
     };
     const handleViewStudent = (student: Student) => {
         setSelectedStudent(student);
@@ -271,7 +286,7 @@ export default function SuperAdminDashboard() {
                         <TableCell className="text-right">{/* Actions */}</TableCell>
                     </TableRow>
                 );
-              // ADDED: Case for rendering blog posts
+            // ADDED: Case for rendering blog posts
             case 'blogs':
                 return (
                     <TableRow key={item.slug} className="border-b-slate-800 hover:bg-slate-800/30">
@@ -280,14 +295,14 @@ export default function SuperAdminDashboard() {
                         <TableCell className="text-base text-slate-400">{item.category}</TableCell>
                         <TableCell className="text-base text-slate-400"><ClientOnlyDate dateString={item.publishedDate} /></TableCell>
                         <TableCell className="text-right">
-                             <div className="flex justify-end gap-2">
+                            <div className="flex justify-end gap-2">
                                 <Link href={`/blog/${item.slug}`} target="_blank">
                                     <Button variant="outline" size="sm"><Eye className="w-4 h-4 mr-2" />View</Button>
                                 </Link>
-                             </div>
+                            </div>
                         </TableCell>
                     </TableRow>
-                );    
+                );
             default:
                 return (
                     <TableRow key={item._id} className="border-b-slate-800 hover:bg-slate-800/30">
@@ -329,11 +344,17 @@ export default function SuperAdminDashboard() {
                                 </div>
                             </div>
                             <div className="flex items-center gap-2">
-                                <Link href="/admin/courses"><Button variant="outline"><BookOpen className="w-4 h-4 mr-2" />Courses</Button></Link>
-                                <Link href="/admin/careers"><Button variant="outline"><Briefcase className="w-4 h-4 mr-2" />Careers</Button></Link>
+                                <Link href="/super-admin/courses"><Button variant="outline"><BookOpen className="w-4 h-4 mr-2" />Courses</Button></Link>
+                                <Link href="/super-admin/careers"><Button variant="outline"><Briefcase className="w-4 h-4 mr-2" />Careers</Button></Link>
                                 <Button variant="outline"><Download className="h-4 w-4 mr-2" />Export</Button>
                                 <Button onClick={() => window.location.reload()} className="bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 text-white font-semibold transition-all duration-300 shadow-lg hover:shadow-cyan-500/25"><Activity className="h-4 w-4 mr-2" /> Refresh</Button>
-                                <Button variant="destructive" onClick={handleLogout} className='text-white font-semibold bg-red-600 hover:bg-red-700 transition-all duration-300 shadow-lg hover:shadow-red-500/25'><LogOut className="h-4 w-4 mr-2" /> Logout</Button>
+                                <Button
+                                    variant="destructive"
+                                    onClick={handleLogout}
+                                    className='text-white font-semibold bg-red-600 hover:bg-red-700 transition-all duration-300 shadow-lg hover:shadow-red-500/25'
+                                >
+                                    <LogOut className="h-4 w-4 mr-2" /> Logout
+                                </Button>
                             </div>
                         </div>
                     </div>

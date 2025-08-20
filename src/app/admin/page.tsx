@@ -292,7 +292,7 @@ function AdminDashboardContent() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
             >
-              <Button
+              {/* <Button
                 onClick={() => window.location.href = '/admin/courses'}
                 variant="outline"
                 className="bg-gradient-to-r from-gray-800/50 to-gray-700/50 border border-gray-600/50 text-gray-300 hover:text-white hover:border-cyan-500/50 transition-all duration-300 text-sm"
@@ -307,7 +307,7 @@ function AdminDashboardContent() {
               >
                 <Briefcase className="h-4 w-4 mr-1" />
                 Careers
-              </Button>
+              </Button> */}
               <Button
                 onClick={exportToCSV}
                 variant="outline"
