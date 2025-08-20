@@ -126,26 +126,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   // Logout function
+// In src/contexts/AuthContext.tsx
+
 const logout = async () => {
   try {
-    // Call the logout endpoint to clear the cookie on the server
+    // 1. This clears the main user's cookie on the server
     await axios.post('/api/auth/logout');
-    
-    // Dispatch the LOGOUT action to update the state via the reducer
+  } catch (error) {
+    console.error("Logout API call failed:", error);
+  } finally {
+    // 2. This clears the main user's state in the app
     dispatch({ type: 'LOGOUT' });
 
-    // Use window.location.href to force a full page reload and clear caches
-    // This will redirect to your home page or login page as needed
+    // --- THIS IS THE FIX ---
+    // 3. This explicitly removes the super admin's session from the browser
+    localStorage.removeItem('superAdminAuth');
+    // --- END OF FIX ---
+
+    // 4. This forces a full page reload to ensure everything is reset
     window.location.href = '/login'; 
-    
-  } catch (error) {
-    console.error("Logout failed:", error);
-    // Even if the API call fails, ensure the user is logged out on the client-side
-    dispatch({ type: 'LOGOUT' });
-    window.location.href = '/login';
   }
 };
-
 // Clear error function
 const clearError = () => {
   dispatch({ type: 'CLEAR_ERROR' });
