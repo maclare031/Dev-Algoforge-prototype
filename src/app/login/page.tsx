@@ -35,43 +35,24 @@ function LoginContent() {
   const router = useRouter();
   const { login, isLoading, error } = useAuth();
 
+// src/app/login/page.tsx
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     try {
-      await login(credentials);
+      // The login function will now handle the redirect automatically
+      await login(credentials); 
       
-      // Show success message
-      toast.success(`Welcome back, ${credentials.username}!`, {
-        duration: 3000,
-        position: 'top-center',
-        style: {
-          background: '#065f46',
-          color: '#ecfdf5',
-          border: '1px solid #10b981'
-        }
-      });
+      // We can still show a success message from the page
+      toast.success(`Welcome back, ${credentials.username}!`);
 
-      // Redirect based on role
-      if (credentials.role === 'admin') {
-        router.push('/admin');
-      } else {
-        router.push('/'); // We'll create this for students
-      }
-    } catch (err) {
-      console.error('Login failed:', err);
-      toast.error('Login failed. Please check your credentials.', {
-        duration: 4000,
-        position: 'top-center',
-        style: {
-          background: '#991b1b',
-          color: '#fef2f2',
-          border: '1px solid #ef4444'
-        }
-      });
+    } catch (err: any) {
+      // The error is re-thrown from the context, so we can display it here.
+      // No need to console.error, as the toast provides user feedback.
+      toast.error(err.message);
     }
   };
-
   const handleInputChange = (field: keyof LoginCredentials, value: string) => {
     setCredentials(prev => ({
       ...prev,
