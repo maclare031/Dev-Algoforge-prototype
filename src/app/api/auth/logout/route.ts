@@ -1,29 +1,17 @@
 // src/app/api/auth/logout/route.ts
 
-import { NextRequest, NextResponse } from 'next/server';
-import { serialize } from 'cookie';
+import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 
-export async function POST(req: NextRequest) {
-  const isProduction = process.env.NODE_ENV === 'production';
-  const host = req.headers.get('host');
-  // This logic MUST BE IDENTICAL to the login route
-  const domain = isProduction ? host?.split(':')[0] : undefined;
-
-  // Create a cookie with the exact same parameters, but with maxAge: -1 to expire it.
-  const cookie = serialize('token', '', {
-    httpOnly: true,
-    secure: isProduction,
-    sameSite: 'strict',
-    maxAge: -1, // Expire the cookie immediately
-    path: '/',
-    domain: domain, // **CRUCIAL: This now matches the login cookie**
-  });
-
-  const response = NextResponse.json({
-    success: true,
-    message: 'Logged out successfully',
-  });
-
-  response.headers.set('Set-Cookie', cookie);
-  return response;
+export async function POST() {
+  try {
+    cookies().set('token', '', {
+      httpOnly: true,
+      path: '/',
+      expires: new Date(0), // Set expiry date to the past to delete it
+    });
+    return NextResponse.json({ success: true, message: 'Logged out successfully' });
+  } catch (error) {
+    return NextResponse.json({ success: false, message: 'Logout failed' }, { status: 500 });
+  }
 }

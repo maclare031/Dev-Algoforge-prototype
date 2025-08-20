@@ -1,122 +1,75 @@
-// "use server";
+// src/app/api/login/route.js
 
-// import { NextResponse } from "next/server";
-// import jwt from 'jsonwebtoken';
+import { NextResponse } from "next/server";
+import jwt from 'jsonwebtoken';
+import { cookies } from 'next/headers';
 
-// // Mock users database - In a real app, this would be in a database
-// const USERS = {
-//   admin: {
-//     id: 'admin-1',
-//     username: 'algoforge',
-//     password: 'Algoforge@1980',
-//     email: 'admin@algoforgestudios.com',
-//     firstName: 'AlgoForge',
-//     lastName: 'Admin',
-//     role: 'admin',
-//     createdAt: '2024-01-01T00:00:00.000Z',
-//     updatedAt: '2024-01-01T00:00:00.000Z'
-//   },
-//   students: [
-//     {
-//       id: 'student-1',
-//       username: 'student1',
-//       password: 'Student@123',
-//       email: 'student1@example.com',
-//       firstName: 'John',
-//       lastName: 'Doe',
-//       role: 'student',
-//       createdAt: '2024-01-01T00:00:00.000Z',
-//       updatedAt: '2024-01-01T00:00:00.000Z'
-//     },
-//     {
-//       id: 'student-2',
-//       username: 'student2',
-//       password: 'Student@456',
-//       email: 'jane.smith@example.com',
-//       firstName: 'Jane',
-//       lastName: 'Smith',
-//       role: 'student',
-//       createdAt: '2024-01-01T00:00:00.000Z',
-//       updatedAt: '2024-01-01T00:00:00.000Z'
-//     },
-//     {
-//       id: 'student-3',
-//       username: 'mike_wilson',
-//       password: 'Mike@789',
-//       email: 'mike.wilson@example.com',
-//       firstName: 'Mike',
-//       lastName: 'Wilson',
-//       role: 'student',
-//       createdAt: '2024-01-01T00:00:00.000Z',
-//       updatedAt: '2024-01-01T00:00:00.000Z'
-//     }
-//   ]
-// };
+// Mock users database
+const USERS = {
+  admin: {
+    id: 'admin-1',
+    username: 'algoforge',
+    password: process.env.ADMIN_PASSWORD,
+    role: 'admin',
+    name: 'AlgoForge Admin'
+  },
+  students: [
+    {
+      id: 'student-1',
+      username: 'student1',
+      password: 'Student@123',
+      role: 'student',
+      name: 'John Doe'
+    },
+  ]
+};
 
-// // JWT Secret - In a real app, this should be in environment variables
-// const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this-in-production';
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
-// export async function POST(request) {
-//   try {
-//     const { username, password, role } = await request.json();
+export async function POST(request) {
+  try {
+    const { username, password, role } = await request.json();
 
-//     if (!username || !password || !role) {
-//       return NextResponse.json(
-//         { success: false, message: 'Username, password, and role are required' },
-//         { status: 400 }
-//       );
-//     }
+    if (!username || !password || !role) {
+      return NextResponse.json({ message: 'All fields are required' }, { status: 400 });
+    }
 
-//     let user = null;
+    let user = null;
+    if (role === 'admin') {
+      if (username === USERS.admin.username && password === USERS.admin.password) {
+        user = { ...USERS.admin };
+      }
+    } else if (role === 'student') {
+      const foundStudent = USERS.students.find(s => s.username === username && s.password === password);
+      if (foundStudent) {
+        user = { ...foundStudent };
+      }
+    }
 
-//     // Check admin login
-//     if (role === 'admin') {
-//       if (username === USERS.admin.username && password === USERS.admin.password) {
-//         user = { ...USERS.admin };
-//         delete user.password; // Remove password from response
-//       }
-//     }
-//     // Check student login
-//     else if (role === 'student') {
-//       const foundStudent = USERS.students.find(
-//         s => s.username === username && s.password === password
-//       );
-//       if (foundStudent) {
-//         user = { ...foundStudent };
-//         delete user.password; // Remove password from response
-//       }
-//     }
+    if (!user) {
+      return NextResponse.json({ message: 'Invalid credentials' }, { status: 401 });
+    }
+    
+    // @ts-ignore
+    delete user.password;
 
-//     if (!user) {
-//       return NextResponse.json(
-//         { success: false, message: 'Invalid credentials or role' },
-//         { status: 401 }
-//       );
-//     }
+    const token = jwt.sign(
+      { id: user.id, username: user.username, role: user.role, name: user.name },
+      JWT_SECRET,
+      { expiresIn: '24h' }
+    );
 
-//     // Create JWT token
-//     const token = jwt.sign(
-//       { 
-//         id: user.id, 
-//         username: user.username, 
-//         role: user.role 
-//       },
-//       JWT_SECRET,
-//       { expiresIn: '24h' }
-//     );
+    cookies().set('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV !== 'development',
+      sameSite: 'strict',
+      path: '/',
+      maxAge: 60 * 60 * 24, // 24 hours
+    });
 
-//     return NextResponse.json({
-//       success: true,
-//       user,
-//       token,
-//       message: `Successfully logged in as ${role}`
-//     });
+    return NextResponse.json({ success: true, user });
 
-//   } catch (error) {
-//     console.error('Login error:', error);
-//     return NextResponse.json(
-//       { success: false, message: 'Internal server error' },
-//       { status: 500 }
-//     );
-//   }
-// }
+  } catch (error) {
+    return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
+  }
+}
