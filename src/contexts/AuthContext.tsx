@@ -98,17 +98,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   
   // --- ADDED MISSING FUNCTIONS ---
 
-  const login = async (credentials: LoginCredentials) => {
-    dispatch({ type: 'LOGIN_START' });
-    try {
-      const response = await axios.post('/api/auth/login', credentials);
-      dispatch({ type: 'LOGIN_SUCCESS', payload: { user: response.data.user } });
-      router.push('/dashboard');
-    } catch (error: any) {
-      dispatch({ type: 'LOGIN_FAILURE', payload: error.response?.data?.message || 'Login failed' });
-    }
-  };
+ const login = async (credentials: LoginCredentials & { role: string }) => {
+  dispatch({ type: 'LOGIN_START' });
+  try {
+    const response = await axios.post('/api/login', credentials);
+    const { user } = response.data; // Get the user object from the response
 
+    if (!user) {
+      throw new Error("User data not found in login response.");
+    }
+
+    dispatch({ type: 'LOGIN_SUCCESS', payload: { user: user } });
+
+    // --- CENTRALIZED REDIRECT LOGIC ---
+    // The context now decides where to send the user.
+    if (user.role === 'admin') {
+      router.push('/admin');
+    } else {
+      router.push('/dashboard'); // Your main dashboard for students
+    }
+    
+  } catch (error: any) {
+    const errorMessage = error.response?.data?.message || 'Login failed. Please check credentials.';
+    dispatch({ type: 'LOGIN_FAILURE', payload: errorMessage });
+    // Re-throw the error so the UI can catch it and show a toast
+    throw new Error(errorMessage);
+  }
+};
 const adminLogin = async (credentials: LoginCredentials) => {
     dispatch({ type: 'LOGIN_START' });
     try {
