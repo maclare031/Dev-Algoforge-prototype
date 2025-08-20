@@ -81,9 +81,8 @@ interface CourseCategory {
 }
 
 export function Navigation() {
-  // --- START: This is the critical fix ---
   const { user, admin, superAdmin, isAuthenticated, logout } = useAuth();
-  // Combine all logged-in user types into a single, reliable object for the UI
+  // Correctly determine the current user
   const currentUser = user || admin || superAdmin;
   // --- END: This is the critical fix ---
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -743,7 +742,7 @@ export function Navigation() {
             </div>
 
             {/* Authentication Section */}
-            {isAuthenticated && user ? (
+            {isAuthenticated && currentUser ? (
               <div className="flex items-center space-x-3">
                 {/* Profile Dropdown */}
                 <div
@@ -792,7 +791,7 @@ export function Navigation() {
 
                       {/* Menu Items */}
                       <div className="space-y-1">
-                        {user.role === 'student' && (
+                        {currentUser.role === 'student' && (
                           <>
                             {/* <Link
                               href="/dashboards"
@@ -821,7 +820,7 @@ export function Navigation() {
                           </>
                         )}
 
-                        {user.role === 'admin' && (
+                        {currentUser.role === 'admin' && (
                           <Link
                             href="/admin"
                             className="flex items-center space-x-3 px-3 py-2 text-gray-300 hover:text-purple-300 hover:bg-purple-500/10 rounded-lg transition-all duration-200 group"
@@ -1170,9 +1169,9 @@ export function Navigation() {
               </div>
 
               {/* Mobile Authentication Buttons */}
-              {isAuthenticated && user ? (
+              {isAuthenticated && currentUser ? (
                 <div className="space-y-2">
-                  {user.role === 'admin' && (
+                  {currentUser.role === 'admin' && (
                     <Button
                       onClick={() => {
                         setIsMenuOpen(false);
@@ -1184,7 +1183,7 @@ export function Navigation() {
                       <span>Admin Panel</span>
                     </Button>
                   )}
-                  {user.role === 'student' && (
+                  {currentUser.role === 'student' && (
                     <Button
                       onClick={() => {
                         setIsMenuOpen(false);

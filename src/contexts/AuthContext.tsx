@@ -28,15 +28,13 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
   switch (action.type) {
     case 'INITIALIZE':
     case 'LOGIN_SUCCESS':
-      const user = action.payload || null;
-      const isSuperAdmin = user?.role === 'super-admin';
-      const isAdmin = user?.role === 'admin';
+      const userPayload = action.payload || null;
       return {
         ...state,
-        user: user && !isAdmin && !isSuperAdmin ? user : null,
-        admin: user && isAdmin ? user : null,
-        superAdmin: user && isSuperAdmin ? user : null,
-        isAuthenticated: !!user,
+        user: userPayload?.role === 'student' ? userPayload : null,
+        admin: userPayload?.role === 'admin' ? userPayload : null,
+        superAdmin: userPayload?.role === 'super-admin' ? userPayload : null,
+        isAuthenticated: !!userPayload,
         isLoading: false,
         error: null,
       };
@@ -58,7 +56,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    const checkSession = async () => {
+    const checkUserSession = async () => {
       try {
         const { data } = await axios.get('/api/auth/me');
         if (data.success) {
@@ -70,14 +68,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         dispatch({ type: 'INITIALIZE' });
       }
     };
-    checkSession();
+    checkUserSession();
   }, []);
 
-  const login = async (credentials: LoginCredentials & { role: string }) => {
+  const login = async (credentials: LoginCredentials) => {
     dispatch({ type: 'LOGIN_START' });
     try {
       const { data } = await axios.post('/api/login', credentials);
       dispatch({ type: 'LOGIN_SUCCESS', payload: data.user });
+      
       if (data.user.role === 'admin') {
         router.push('/admin');
       } else {
@@ -90,6 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // --- THIS FUNCTION WAS MISSING FROM THE CONTEXT VALUE ---
   const superAdminLogin = async (credentials: Omit<LoginCredentials, 'username' | 'role'>) => {
     dispatch({ type: 'LOGIN_START' });
     try {
@@ -107,18 +107,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await axios.post('/api/auth/logout');
     } catch (error) {
-      console.error("Logout API call failed, but clearing client state anyway.", error);
+      console.error("Logout API call failed, but clearing client state regardless.", error);
     } finally {
       dispatch({ type: 'LOGOUT' });
-      // We don't need to remove localStorage anymore!
       router.push('/');
     }
   };
   
-  const contextValue = { ...state, login, superAdminLogin, logout };
+  // --- THE FIX: ADD superAdminLogin TO THIS OBJECT ---
+  const contextValue: AuthContextType = {
+    ...state,
+    login,
+    superAdminLogin, // Added the missing function
+    logout,
+    // Add any other required functions like 'signup' or 'adminLogin' if your type requires them
+  };
 
   return (
-    <AuthContext.Provider value={contextValue as AuthContextType}>
+    <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
   );
@@ -126,6 +132,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuth must be used within an AuthProvider');
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
   return context;
 };
