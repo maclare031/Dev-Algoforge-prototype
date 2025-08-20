@@ -6,36 +6,34 @@ import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { AuthState, AuthContextType, LoginCredentials, User } from '@/types/auth';
 
-// Auth actions remain the same
+// Define the shape of our actions
 type AuthAction =
   | { type: 'LOGIN_START' }
-  | { type: 'LOGIN_SUCCESS'; payload: User }
+  | { type: 'LOGIN_SUCCESS'; payload: { user?: User; admin?: any; superAdmin?: any } }
   | { type: 'LOGIN_FAILURE'; payload: string }
   | { type: 'LOGOUT' }
   | { type: 'CLEAR_ERROR' }
-  | { type: 'INITIALIZE'; payload?: User }; // Changed from RESTORE_SESSION
+  | { type: 'INITIALIZE'; payload?: { user?: User; admin?: any; superAdmin?: any } };
 
-// Initial state remains the same
+// All auth state is now in one place
 const initialState: AuthState = {
   user: null,
+  admin: null,
+  superAdmin: null,
   isAuthenticated: false,
-  isLoading: true, // Start with isLoading: true to check session
+  isLoading: true,
   error: null,
 };
 
-// Reducer - updated for clarity
+// A single reducer to manage all auth state
 function authReducer(state: AuthState, action: AuthAction): AuthState {
   switch (action.type) {
     case 'LOGIN_START':
-      return {
-        ...state,
-        isLoading: true,
-        error: null,
-      };
+      return { ...state, isLoading: true, error: null };
     case 'LOGIN_SUCCESS':
       return {
         ...state,
-        user: action.payload,
+        ...action.payload,
         isAuthenticated: true,
         isLoading: false,
         error: null,
@@ -44,6 +42,8 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
       return {
         ...state,
         user: null,
+        admin: null,
+        superAdmin: null,
         isAuthenticated: false,
         isLoading: false,
         error: action.payload,
@@ -52,22 +52,20 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
       return {
         ...state,
         user: null,
+        admin: null,
+        superAdmin: null,
         isAuthenticated: false,
         isLoading: false,
         error: null,
       };
     case 'CLEAR_ERROR':
-      return {
-        ...state,
-        error: null,
-      };
+      return { ...state, error: null };
     case 'INITIALIZE':
       return {
         ...state,
-        user: action.payload || null,
-        isAuthenticated: !!action.payload,
+        ...action.payload,
+        isAuthenticated: !!(action.payload?.user || action.payload?.admin || action.payload?.superAdmin),
         isLoading: false,
-        error: null,
       };
     default:
       return state;
@@ -82,80 +80,98 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(authReducer, initialState);
   const router = useRouter();
 
-  // This effect runs once on mount to check for an active session
   useEffect(() => {
     const checkUserSession = async () => {
       try {
-        // We call our new 'me' endpoint to see if a valid cookie exists
         const response = await axios.get('/api/auth/me');
         if (response.data.success) {
-          dispatch({ type: 'INITIALIZE', payload: response.data.user });
+          dispatch({ type: 'INITIALIZE', payload: { user: response.data.user } });
         } else {
           dispatch({ type: 'INITIALIZE' });
         }
       } catch (error) {
-        // If the request fails (e.g., 401 Unauthorized), there's no active session
         dispatch({ type: 'INITIALIZE' });
       }
     };
-
     checkUserSession();
   }, []);
+  
+  // --- ADDED MISSING FUNCTIONS ---
 
-  // Login function
   const login = async (credentials: LoginCredentials) => {
     dispatch({ type: 'LOGIN_START' });
     try {
-      // The /api/auth endpoint now sets the HttpOnly cookie automatically
-      const response = await axios.post('/api/auth', credentials);
-      
-      if (response.data.success) {
-        const { user } = response.data;
-        // We no longer need to touch localStorage for tokens
-        dispatch({ type: 'LOGIN_SUCCESS', payload: user });
-      } else {
-        const errorMessage = response.data.message || 'Login failed';
-        dispatch({ type: 'LOGIN_FAILURE', payload: errorMessage });
-        throw new Error(errorMessage);
-      }
+      const response = await axios.post('/api/auth/login', credentials);
+      dispatch({ type: 'LOGIN_SUCCESS', payload: { user: response.data.user } });
+      router.push('/dashboard');
     } catch (error: any) {
-      const errorMessage = error.response?.data?.message || error.message || 'Login failed';
-      dispatch({ type: 'LOGIN_FAILURE', payload: errorMessage });
-      throw new Error(errorMessage);
+      dispatch({ type: 'LOGIN_FAILURE', payload: error.response?.data?.message || 'Login failed' });
     }
   };
 
-  // Logout function
-// In src/contexts/AuthContext.tsx
+const adminLogin = async (credentials: LoginCredentials) => {
+    dispatch({ type: 'LOGIN_START' });
+    try {
+      const response = await axios.post('/api/admin/login', credentials);
+      if (response.data.success) {
+        // Make sure the payload key matches your reducer ('admin')
+        dispatch({ type: 'LOGIN_SUCCESS', payload: { admin: response.data.admin } });
+        router.push('/admin/dashboard'); // Or wherever admins should go
+      } else {
+        dispatch({ type: 'LOGIN_FAILURE', payload: response.data.message || 'Admin login failed' });
+      }
+    } catch (error: any) {
+      dispatch({ type: 'LOGIN_FAILURE', payload: error.response?.data?.message || 'Admin login failed' });
+    }
+  };
 
-// In src/contexts/AuthContext.tsx
+  const superAdminLogin = async (credentials: LoginCredentials) => {
+    dispatch({ type: 'LOGIN_START' });
+    try {
+      // IMPORTANT: Make sure this API endpoint is correct for your app
+      const response = await axios.post('/api/super-admin/login', credentials);
+      dispatch({ type: 'LOGIN_SUCCESS', payload: { superAdmin: response.data.superAdmin } });
+      router.push('/super-admin');
+    } catch (error: any) {
+      dispatch({ type: 'LOGIN_FAILURE', payload: error.response?.data?.message || 'Super admin login failed' });
+    }
+  };
+  
+  const signup = async (userData: any) => {
+    dispatch({ type: 'LOGIN_START' });
+    try {
+      const response = await axios.post('/api/auth/signup', userData);
+      dispatch({ type: 'LOGIN_SUCCESS', payload: { user: response.data.user } });
+      router.push('/dashboard');
+    } catch (error: any) {
+      dispatch({ type: 'LOGIN_FAILURE', payload: error.response?.data?.message || 'Signup failed' });
+    }
+  };
 
-const logout = async () => {
-  try {
-    // 1. Clears the main user's cookie on the server
-    await axios.post('/api/auth/logout');
-  } catch (error) {
-    console.error("Logout API call failed:", error);
-  } finally {
-    // 2. Clears the main user's state in the app
-    dispatch({ type: 'LOGOUT' });
+  const logout = async () => {
+    try {
+      await axios.post('/api/auth/logout');
+    } catch (error) {
+      console.error("Logout API call failed:", error);
+    } finally {
+      dispatch({ type: 'LOGOUT' });
+      localStorage.removeItem('superAdminAuth');
+      localStorage.removeItem('adminAuth');
+      router.push('/');
+    }
+  };
 
-    // --- THIS IS THE FIX ---
-    // 3. Explicitly removes the super admin's session from the browser
-    localStorage.removeItem('superAdminAuth');
+  const clearError = () => {
+    dispatch({ type: 'CLEAR_ERROR' });
+  };
 
-    // 4. Forces a full page reload to the correct user login page
-    window.location.href = '/login'; 
-  }
-};
-// Clear error function
-const clearError = () => {
-  dispatch({ type: 'CLEAR_ERROR' });
-};
-
+  // --- FIX: ADDED ALL FUNCTIONS TO THE CONTEXT VALUE ---
   const contextValue: AuthContextType = {
     ...state,
     login,
+    adminLogin,
+    superAdminLogin,
+    signup,
     logout,
     clearError,
   };
