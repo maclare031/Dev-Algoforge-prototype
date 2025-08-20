@@ -1,63 +1,47 @@
 "use client"
+"use client"
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import axios from 'axios';
 import { motion } from 'framer-motion';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { 
-  Shield, 
-  Eye, 
-  EyeOff, 
-  User, 
-  Lock, 
+import {
+  Shield,
+  Eye,
+  EyeOff,
+  User,
+  Lock,
   AlertCircle,
-  Sparkles,
-  ArrowRight,
-  LogIn
+  LogIn,
+  ArrowRight
 } from 'lucide-react';
-import Image from 'next/image';
-import Link from 'next/link';
+import { useAuth } from '@/contexts/AuthContext'; // Import useAuth
 
 export default function AdminLogin() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null); // Use string type for error
+  const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
+  const { login } = useAuth(); // Get the login function from AuthContext
 
-  const handleLogin = async (e: React.FormEvent) => { // Add type for the event
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setIsLoading(true);
 
     try {
-      // This is the updated logic
-      const response = await fetch('/api/auth', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password, role: 'admin' }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        localStorage.setItem('adminAuth', 'authenticated');
-        // We will remove this later when switching to cookies
-        // localStorage.setItem('token', data.token); 
-        router.push('/admin');
-      } else {
-        setError(data.message || 'Invalid credentials. Please check your username and password.');
-      }
-    } catch (err) {
-      setError('Failed to connect to the server.');
+      // Use the login function from AuthContext
+      await login({ username, password, role: 'admin' });
+      // The login function in AuthContext will handle redirection
+    } catch (err: any) {
+      setError(err.message || 'Failed to connect to the server.');
     } finally {
       setIsLoading(false);
     }
   };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900/95 to-black relative overflow-hidden flex items-center justify-center">
       {/* Enhanced Background Effects */}
