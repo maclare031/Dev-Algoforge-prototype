@@ -358,7 +358,7 @@ export function Navigation() {
     }
   };
 
-// Handle user logout
+  // Handle user logout
   const handleAuthLogout = () => {
     logout();
     router.push('/login');
@@ -374,7 +374,7 @@ export function Navigation() {
       setSearchTerm("");
       setIsSearchFocused(false);
       setSearchSuggestions([]);
-      
+
       // Navigate to course
       router.push(`/courses/${courseId}`);
     }
@@ -457,19 +457,17 @@ export function Navigation() {
                     Courses
                   </span>
                   <ChevronDown
-                    className={`w-4 h-4 transition-transform duration-300 ${
-                      isCoursesOpen ? "rotate-180" : ""
-                    }`}
+                    className={`w-4 h-4 transition-transform duration-300 ${isCoursesOpen ? "rotate-180" : ""
+                      }`}
                   />
                 </button>
 
                 {/* Courses Mega Menu */}
                 <div
-                  className={`absolute top-full left-0 mt-2 w-[85vw] max-w-4xl bg-black/95 backdrop-blur-xl border border-cyan-400/30 rounded-2xl shadow-2xl shadow-cyan-500/20 transition-all duration-300 ${
-                    isCoursesOpen
-                      ? "opacity-100 visible translate-y-0"
-                      : "opacity-0 invisible translate-y-4"
-                  }`}
+                  className={`absolute top-full left-0 mt-2 w-[85vw] max-w-4xl bg-black/95 backdrop-blur-xl border border-cyan-400/30 rounded-2xl shadow-2xl shadow-cyan-500/20 transition-all duration-300 ${isCoursesOpen
+                    ? "opacity-100 visible translate-y-0"
+                    : "opacity-0 invisible translate-y-4"
+                    }`}
                   style={{
                     left: "max(-2rem, calc(-40vw + 50%))",
                     right: "auto",
@@ -638,11 +636,10 @@ export function Navigation() {
             <div className="relative">
               <form onSubmit={handleSearch} className="relative group">
                 <Search
-                  className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 transition-all duration-300 z-10 ${
-                    isSearchFocused || searchTerm
-                      ? "text-cyan-300 scale-110"
-                      : "text-cyan-400 group-hover:text-cyan-300"
-                  }`}
+                  className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 transition-all duration-300 z-10 ${isSearchFocused || searchTerm
+                    ? "text-cyan-300 scale-110"
+                    : "text-cyan-400 group-hover:text-cyan-300"
+                    }`}
                 />
                 <input
                   type="text"
@@ -657,11 +654,10 @@ export function Navigation() {
                     }, 200)
                   }
                   onKeyDown={handleSearchKeyDown}
-                  className={`bg-black/50 border rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-gray-400 focus:outline-none transition-all duration-300 w-48 xl:w-56 ${
-                    isSearchFocused || searchTerm
-                      ? "border-cyan-400 ring-2 ring-cyan-400/50 shadow-lg shadow-cyan-500/20 bg-black/70"
-                      : "border-cyan-500/30 hover:border-cyan-400/50"
-                  }`}
+                  className={`bg-black/50 border rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-gray-400 focus:outline-none transition-all duration-300 w-48 xl:w-56 ${isSearchFocused || searchTerm
+                    ? "border-cyan-400 ring-2 ring-cyan-400/50 shadow-lg shadow-cyan-500/20 bg-black/70"
+                    : "border-cyan-500/30 hover:border-cyan-400/50"
+                    }`}
                 />
                 {searchTerm && (
                   <button
@@ -746,7 +742,7 @@ export function Navigation() {
             {isAuthenticated && user ? (
               <div className="flex items-center space-x-3">
                 {/* Profile Dropdown */}
-                <div 
+                <div
                   className="relative profile-dropdown"
                   onMouseEnter={() => setIsProfileOpen(true)}
                   onMouseLeave={() => setIsProfileOpen(false)}
@@ -768,11 +764,10 @@ export function Navigation() {
 
                   {/* Profile Dropdown Menu */}
                   <div
-                    className={`absolute top-full right-0 mt-2 w-64 bg-black/95 backdrop-blur-xl border border-cyan-400/30 rounded-2xl shadow-2xl shadow-cyan-500/20 transition-all duration-300 ${
-                      isProfileOpen
-                        ? "opacity-100 visible translate-y-0"
-                        : "opacity-0 invisible translate-y-4"
-                    }`}
+                    className={`absolute top-full right-0 mt-2 w-64 bg-black/95 backdrop-blur-xl border border-cyan-400/30 rounded-2xl shadow-2xl shadow-cyan-500/20 transition-all duration-300 ${isProfileOpen
+                      ? "opacity-100 visible translate-y-0"
+                      : "opacity-0 invisible translate-y-4"
+                      }`}
                   >
                     <div className="p-4">
                       {/* Profile Header */}
@@ -803,12 +798,15 @@ export function Navigation() {
                               <span className="text-sm font-medium">Dashboard</span>
                             </Link> */}
                             <Link
-                              href="/my-courses"
+                              href="https://dev-lms-prototype.vercel.app/login"
+                              target="_blank"
+                              rel="noopener noreferrer"
                               className="flex items-center space-x-3 px-3 py-2 text-gray-300 hover:text-cyan-300 hover:bg-cyan-500/10 rounded-lg transition-all duration-200 group"
                             >
                               <BookOpen className="w-4 h-4" />
                               <span className="text-sm font-medium">Navigate to LMS</span>
                             </Link>
+
                             {/* <Link
                               href="/certificates"
                               className="flex items-center space-x-3 px-3 py-2 text-gray-300 hover:text-cyan-300 hover:bg-cyan-500/10 rounded-lg transition-all duration-200 group"
@@ -818,7 +816,7 @@ export function Navigation() {
                             </Link> */}
                           </>
                         )}
-                        
+
                         {user.role === 'admin' && (
                           <Link
                             href="/admin"
@@ -828,7 +826,7 @@ export function Navigation() {
                             <span className="text-sm font-medium">Admin Panel</span>
                           </Link>
                         )}
-                        
+
                         {/* <Link
                           href="/profile/settings"
                           className="flex items-center space-x-3 px-3 py-2 text-gray-300 hover:text-cyan-300 hover:bg-cyan-500/10 rounded-lg transition-all duration-200 group"
@@ -836,7 +834,7 @@ export function Navigation() {
                           <Settings className="w-4 h-4" />
                           <span className="text-sm font-medium">Settings</span>
                         </Link> */}
-                        
+
                         <div className="border-t border-cyan-500/20 mt-2 pt-2">
                           <button
                             onClick={handleAuthLogout}
@@ -912,306 +910,304 @@ export function Navigation() {
 
       {/* FIXED: Mobile/Tablet Navigation - Now properly shows "View All Courses" button */}
       {isMenuOpen && (
-  <div className="lg:hidden bg-black/95 backdrop-blur-xl border-t border-cyan-500/20 max-h-[85vh] overflow-hidden flex flex-col">
-    <div className="px-4 pt-4 pb-2 flex-shrink-0">
-      {/* Mobile Search */}
-      <div className="mb-4 relative">
-        <form onSubmit={handleSearch} className="relative">
-          <Search
-            className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 transition-all duration-300 ${
-              searchTerm ? "text-cyan-300" : "text-cyan-400"
-            }`}
-          />
-          <input
-            type="text"
-            placeholder="Search courses..."
-            value={searchTerm}
-            onChange={(e) => handleSearchInputChange(e.target.value)}
-            onFocus={() => setIsSearchFocused(true)}
-            onBlur={() =>
-              setTimeout(() => {
-                setIsSearchFocused(false);
-                setSearchSuggestions([]);
-              }, 200)
-            }
-            onKeyDown={handleSearchKeyDown}
-            className={`w-full bg-black/50 border rounded-xl pl-10 py-3 text-sm text-white placeholder-gray-400 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/50 transition-all duration-300 ${
-              searchTerm
-                ? "pr-12 border-cyan-400/50"
-                : "pr-4 border-cyan-500/30"
-            }`}
-          />
-          {searchTerm && (
-            <button
-              type="button"
-              onClick={() => {
-                setSearchTerm("");
-                setSearchSuggestions([]);
-              }}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-cyan-300 transition-colors duration-200 p-1"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          )}
-        </form>
-
-        {/* Mobile Search Suggestions Dropdown */}
-        {searchSuggestions.length > 0 && (isSearchFocused || searchTerm) && (
-          <div className="absolute top-full left-0 right-0 mt-2 bg-black/95 backdrop-blur-xl border border-cyan-400/30 rounded-xl shadow-2xl shadow-cyan-500/20 z-50 max-h-80 overflow-y-auto scrollbar-hide">
-            <div className="p-2">
-              <div className="flex items-center justify-between px-3 py-2 border-b border-cyan-500/20 mb-2">
-                <span className="text-xs font-medium text-cyan-300">
-                  Course Suggestions
-                </span>
-                <span className="text-xs text-gray-400">
-                  {searchSuggestions.length} found
-                </span>
-              </div>
-              {searchSuggestions.map((course, index) => {
-                const courseId = course._id || course.id;
-                return (
-                  <div
-                    key={courseId || index}
+        <div className="lg:hidden bg-black/95 backdrop-blur-xl border-t border-cyan-500/20 max-h-[85vh] overflow-hidden flex flex-col">
+          <div className="px-4 pt-4 pb-2 flex-shrink-0">
+            {/* Mobile Search */}
+            <div className="mb-4 relative">
+              <form onSubmit={handleSearch} className="relative">
+                <Search
+                  className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 transition-all duration-300 ${searchTerm ? "text-cyan-300" : "text-cyan-400"
+                    }`}
+                />
+                <input
+                  type="text"
+                  placeholder="Search courses..."
+                  value={searchTerm}
+                  onChange={(e) => handleSearchInputChange(e.target.value)}
+                  onFocus={() => setIsSearchFocused(true)}
+                  onBlur={() =>
+                    setTimeout(() => {
+                      setIsSearchFocused(false);
+                      setSearchSuggestions([]);
+                    }, 200)
+                  }
+                  onKeyDown={handleSearchKeyDown}
+                  className={`w-full bg-black/50 border rounded-xl pl-10 py-3 text-sm text-white placeholder-gray-400 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/50 transition-all duration-300 ${searchTerm
+                    ? "pr-12 border-cyan-400/50"
+                    : "pr-4 border-cyan-500/30"
+                    }`}
+                />
+                {searchTerm && (
+                  <button
+                    type="button"
                     onClick={() => {
-                      handleSuggestionClick(course);
+                      setSearchTerm("");
+                      setSearchSuggestions([]);
                     }}
-                    className="flex items-start space-x-3 p-3 rounded-lg hover:bg-cyan-500/10 cursor-pointer transition-all duration-200 group"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-cyan-300 transition-colors duration-200 p-1"
                   >
-                    <div className="p-1.5 rounded-md bg-gradient-to-br from-cyan-500/25 to-purple-500/25 group-hover:from-cyan-400/35 group-hover:to-purple-400/35 transition-all duration-200 flex-shrink-0">
-                      {iconMap[course.iconName] ? (
-                        React.createElement(iconMap[course.iconName], {
-                          className: "w-4 h-4 text-cyan-300",
-                        })
-                      ) : (
-                        <BookOpen className="w-4 h-4 text-cyan-300" />
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="text-white font-medium group-hover:text-cyan-200 transition-colors duration-200 text-sm leading-tight truncate">
-                        {course.title}
-                      </h4>
-                      <p className="text-xs text-gray-400 truncate mt-1">
-                        {course.description}
-                      </p>
-                      <div className="flex items-center space-x-2 mt-2">
-                        <span className="px-1.5 py-0.5 bg-gray-800/60 text-gray-300 rounded text-xs">
-                          {course.duration}
-                        </span>
-                        <span className="px-1.5 py-0.5 bg-gray-800/60 text-gray-300 rounded text-xs">
-                          {course.level}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-              <div className="border-t border-cyan-500/20 mt-2 pt-2">
-                <button
-                  onClick={() => handleSearchWithSuggestion(searchTerm)}
-                  className="w-full flex items-center justify-center space-x-2 p-2 rounded-lg hover:bg-cyan-500/10 transition-all duration-200 text-cyan-300 hover:text-cyan-200"
-                >
-                  <Search className="w-4 h-4" />
-                  <span className="text-sm font-medium">
-                    Search all courses for "{searchTerm}"
-                  </span>
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </form>
 
-    {/* Scrollable Content Area */}
-    <div className="flex-1 overflow-y-auto px-4 pb-2">
-      <div className="space-y-1">
-        {/* Mobile Courses Dropdown */}
-        <div>
-          <button
-            onClick={() => setIsMobileCoursesOpen(!isMobileCoursesOpen)}
-            className="w-full text-left text-cyan-300 flex items-center justify-between px-4 py-3 text-base font-medium rounded-lg hover:bg-cyan-500/10 transition-all duration-300"
-          >
-            <span className="flex items-center space-x-2">
-              <BookOpen className="w-4 h-4" />
-              <span>Courses</span>
-            </span>
-            <ChevronDown
-              className={`w-4 h-4 transition-transform duration-300 ${
-                isMobileCoursesOpen ? "rotate-180" : ""
-              }`}
-            />
-          </button>
-
-          {/* Scrollable Mobile courses dropdown */}
-          {isMobileCoursesOpen && (
-            <div className="pl-6 pr-4 pb-2">
-              {/* Scrollable courses container */}
-              <div className="max-h-64 overflow-y-auto space-y-2 pr-2">
-                {courses.map((category, categoryIndex) => (
-                  <div key={categoryIndex} className="space-y-2">
-                    <h4 className="text-cyan-300 font-medium text-sm px-2 py-1 sticky top-0 bg-black/95 z-10 border-b border-cyan-500/20">
-                      {category.category}
-                    </h4>
-                    {category.items.map((course, courseIndex) => (
-                      <Link
-                        href={course.path || "#"}
-                        key={courseIndex}
-                        onClick={(e) => {
-                          if (
-                            !course.path ||
-                            course.path.includes("undefined")
-                          ) {
-                            e.preventDefault();
-                            console.error(
-                              "Invalid course path:",
-                              course.path,
-                              course
-                            );
-                            return;
-                          }
-                          // Close mobile menu immediately for better UX
-                          setIsMenuOpen(false);
-                          setIsMobileCoursesOpen(false);
-                        }}
-                      >
-                        <div className="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-cyan-500/10 transition-all duration-300 cursor-pointer group">
-                          {course.icon && (
-                            <course.icon className="w-4 h-4 text-cyan-400 flex-shrink-0 group-hover:text-cyan-300 transition-colors duration-200" />
-                          )}
-                          {!course.icon && (
-                            <BookOpen className="w-4 h-4 text-cyan-400 flex-shrink-0 group-hover:text-cyan-300 transition-colors duration-200" />
-                          )}
+              {/* Mobile Search Suggestions Dropdown */}
+              {searchSuggestions.length > 0 && (isSearchFocused || searchTerm) && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-black/95 backdrop-blur-xl border border-cyan-400/30 rounded-xl shadow-2xl shadow-cyan-500/20 z-50 max-h-80 overflow-y-auto scrollbar-hide">
+                  <div className="p-2">
+                    <div className="flex items-center justify-between px-3 py-2 border-b border-cyan-500/20 mb-2">
+                      <span className="text-xs font-medium text-cyan-300">
+                        Course Suggestions
+                      </span>
+                      <span className="text-xs text-gray-400">
+                        {searchSuggestions.length} found
+                      </span>
+                    </div>
+                    {searchSuggestions.map((course, index) => {
+                      const courseId = course._id || course.id;
+                      return (
+                        <div
+                          key={courseId || index}
+                          onClick={() => {
+                            handleSuggestionClick(course);
+                          }}
+                          className="flex items-start space-x-3 p-3 rounded-lg hover:bg-cyan-500/10 cursor-pointer transition-all duration-200 group"
+                        >
+                          <div className="p-1.5 rounded-md bg-gradient-to-br from-cyan-500/25 to-purple-500/25 group-hover:from-cyan-400/35 group-hover:to-purple-400/35 transition-all duration-200 flex-shrink-0">
+                            {iconMap[course.iconName] ? (
+                              React.createElement(iconMap[course.iconName], {
+                                className: "w-4 h-4 text-cyan-300",
+                              })
+                            ) : (
+                              <BookOpen className="w-4 h-4 text-cyan-300" />
+                            )}
+                          </div>
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center space-x-2 mb-1">
-                              <span className="text-white text-sm font-medium truncate group-hover:text-cyan-100 transition-colors duration-200">
-                                {course.name}
-                              </span>
-                              <div className="flex space-x-1">
-                                {course.featured && (
-                                  <span className="px-1.5 py-0.5 text-xs bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full flex-shrink-0 animate-pulse">
-                                    Featured
-                                  </span>
-                                )}
-                                {course.trending && (
-                                  <span className="px-1.5 py-0.5 text-xs bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full flex-shrink-0">
-                                    Trending
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                            <p className="text-xs text-gray-400 truncate group-hover:text-gray-300 transition-colors duration-200">
+                            <h4 className="text-white font-medium group-hover:text-cyan-200 transition-colors duration-200 text-sm leading-tight truncate">
+                              {course.title}
+                            </h4>
+                            <p className="text-xs text-gray-400 truncate mt-1">
                               {course.description}
                             </p>
+                            <div className="flex items-center space-x-2 mt-2">
+                              <span className="px-1.5 py-0.5 bg-gray-800/60 text-gray-300 rounded text-xs">
+                                {course.duration}
+                              </span>
+                              <span className="px-1.5 py-0.5 bg-gray-800/60 text-gray-300 rounded text-xs">
+                                {course.level}
+                              </span>
+                            </div>
                           </div>
                         </div>
-                      </Link>
-                    ))}
+                      );
+                    })}
+                    <div className="border-t border-cyan-500/20 mt-2 pt-2">
+                      <button
+                        onClick={() => handleSearchWithSuggestion(searchTerm)}
+                        className="w-full flex items-center justify-center space-x-2 p-2 rounded-lg hover:bg-cyan-500/10 transition-all duration-200 text-cyan-300 hover:text-cyan-200"
+                      >
+                        <Search className="w-4 h-4" />
+                        <span className="text-sm font-medium">
+                          Search all courses for "{searchTerm}"
+                        </span>
+                      </button>
+                    </div>
                   </div>
-                ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Scrollable Content Area */}
+          <div className="flex-1 overflow-y-auto px-4 pb-2">
+            <div className="space-y-1">
+              {/* Mobile Courses Dropdown */}
+              <div>
+                <button
+                  onClick={() => setIsMobileCoursesOpen(!isMobileCoursesOpen)}
+                  className="w-full text-left text-cyan-300 flex items-center justify-between px-4 py-3 text-base font-medium rounded-lg hover:bg-cyan-500/10 transition-all duration-300"
+                >
+                  <span className="flex items-center space-x-2">
+                    <BookOpen className="w-4 h-4" />
+                    <span>Courses</span>
+                  </span>
+                  <ChevronDown
+                    className={`w-4 h-4 transition-transform duration-300 ${isMobileCoursesOpen ? "rotate-180" : ""
+                      }`}
+                  />
+                </button>
+
+                {/* Scrollable Mobile courses dropdown */}
+                {isMobileCoursesOpen && (
+                  <div className="pl-6 pr-4 pb-2">
+                    {/* Scrollable courses container */}
+                    <div className="max-h-64 overflow-y-auto space-y-2 pr-2">
+                      {courses.map((category, categoryIndex) => (
+                        <div key={categoryIndex} className="space-y-2">
+                          <h4 className="text-cyan-300 font-medium text-sm px-2 py-1 sticky top-0 bg-black/95 z-10 border-b border-cyan-500/20">
+                            {category.category}
+                          </h4>
+                          {category.items.map((course, courseIndex) => (
+                            <Link
+                              href={course.path || "#"}
+                              key={courseIndex}
+                              onClick={(e) => {
+                                if (
+                                  !course.path ||
+                                  course.path.includes("undefined")
+                                ) {
+                                  e.preventDefault();
+                                  console.error(
+                                    "Invalid course path:",
+                                    course.path,
+                                    course
+                                  );
+                                  return;
+                                }
+                                // Close mobile menu immediately for better UX
+                                setIsMenuOpen(false);
+                                setIsMobileCoursesOpen(false);
+                              }}
+                            >
+                              <div className="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-cyan-500/10 transition-all duration-300 cursor-pointer group">
+                                {course.icon && (
+                                  <course.icon className="w-4 h-4 text-cyan-400 flex-shrink-0 group-hover:text-cyan-300 transition-colors duration-200" />
+                                )}
+                                {!course.icon && (
+                                  <BookOpen className="w-4 h-4 text-cyan-400 flex-shrink-0 group-hover:text-cyan-300 transition-colors duration-200" />
+                                )}
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center space-x-2 mb-1">
+                                    <span className="text-white text-sm font-medium truncate group-hover:text-cyan-100 transition-colors duration-200">
+                                      {course.name}
+                                    </span>
+                                    <div className="flex space-x-1">
+                                      {course.featured && (
+                                        <span className="px-1.5 py-0.5 text-xs bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full flex-shrink-0 animate-pulse">
+                                          Featured
+                                        </span>
+                                      )}
+                                      {course.trending && (
+                                        <span className="px-1.5 py-0.5 text-xs bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full flex-shrink-0">
+                                          Trending
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                  <p className="text-xs text-gray-400 truncate group-hover:text-gray-300 transition-colors duration-200">
+                                    {course.description}
+                                  </p>
+                                </div>
+                              </div>
+                            </Link>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Sticky "View All Courses" button - Always visible when courses dropdown is open */}
+                    <div className="sticky bottom-0 pt-3 mt-3 border-t border-cyan-500/20 bg-black/95 backdrop-blur-sm">
+                      <Button
+                        onClick={() => {
+                          setIsMenuOpen(false);
+                          setIsMobileCoursesOpen(false);
+                          router.push("/courses");
+                        }}
+                        className="w-full bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-400 hover:to-purple-400 text-white font-semibold py-3 rounded-xl transition-all duration-300 shadow-lg hover:shadow-cyan-500/25 flex items-center justify-center space-x-2"
+                      >
+                        <BookOpen className="w-4 h-4" />
+                        <span>View All Courses</span>
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </div>
-              
-              {/* Sticky "View All Courses" button - Always visible when courses dropdown is open */}
-              <div className="sticky bottom-0 pt-3 mt-3 border-t border-cyan-500/20 bg-black/95 backdrop-blur-sm">
+
+              {/* Mobile Navigation Links */}
+              <Link
+                href="/careers"
+                onClick={() => setIsMenuOpen(false)}
+                className="text-gray-300 hover:text-cyan-300 block px-4 py-3 text-base font-medium rounded-lg hover:bg-cyan-500/10 transition-all duration-300"
+              >
+                Careers
+              </Link>
+              <Link
+                href="/learning-resources"
+                onClick={() => setIsMenuOpen(false)}
+                className="text-gray-300 hover:text-cyan-300 block px-4 py-3 text-base font-medium rounded-lg hover:bg-cyan-500/10 transition-all duration-300"
+              >
+                Learning Resources
+              </Link>
+              <Link
+                href="/blog"
+                onClick={() => setIsMenuOpen(false)}
+                className="text-gray-300 hover:text-cyan-300 block px-4 py-3 text-base font-medium rounded-lg hover:bg-cyan-500/10 transition-all duration-300"
+              >
+                Blog
+              </Link>
+            </div>
+          </div>
+
+          {/* Fixed Bottom CTA Buttons */}
+          <div className="flex-shrink-0 px-4 pt-2 pb-4 border-t border-cyan-500/20 bg-black/95 backdrop-blur-sm">
+            <div className="space-y-3">
+              {/* Contact button only shows on mobile (below md) since tablets already have it in header */}
+              <div className="md:hidden">
                 <Button
                   onClick={() => {
                     setIsMenuOpen(false);
-                    setIsMobileCoursesOpen(false);
-                    router.push("/courses");
+                    router.push("/contact");
                   }}
-                  className="w-full bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-400 hover:to-purple-400 text-white font-semibold py-3 rounded-xl transition-all duration-300 shadow-lg hover:shadow-cyan-500/25 flex items-center justify-center space-x-2"
+                  className="w-full bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-400 hover:to-purple-400 text-white font-medium py-3 rounded-xl transition-all duration-300 shadow-lg flex items-center justify-center space-x-2"
                 >
-                  <BookOpen className="w-4 h-4" />
-                  <span>View All Courses</span>
+                  <Phone className="w-4 h-4" />
+                  <span>Contact Us</span>
                 </Button>
               </div>
-            </div>
-          )}
-        </div>
 
-        {/* Mobile Navigation Links */}
-        <Link
-          href="/careers"
-          onClick={() => setIsMenuOpen(false)}
-          className="text-gray-300 hover:text-cyan-300 block px-4 py-3 text-base font-medium rounded-lg hover:bg-cyan-500/10 transition-all duration-300"
-        >
-          Careers
-        </Link>
-        <Link
-          href="/learning-resources"
-          onClick={() => setIsMenuOpen(false)}
-          className="text-gray-300 hover:text-cyan-300 block px-4 py-3 text-base font-medium rounded-lg hover:bg-cyan-500/10 transition-all duration-300"
-        >
-          Learning Resources
-        </Link>
-        <Link
-          href="/blog"
-          onClick={() => setIsMenuOpen(false)}
-          className="text-gray-300 hover:text-cyan-300 block px-4 py-3 text-base font-medium rounded-lg hover:bg-cyan-500/10 transition-all duration-300"
-        >
-          Blog
-        </Link>
-      </div>
-    </div>
+              {/* Mobile Authentication Buttons */}
+              {isAuthenticated && user ? (
+                <div className="space-y-2">
+                  {user.role === 'admin' && (
+                    <Button
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        router.push('/admin');
+                      }}
+                      className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-400 hover:to-indigo-400 text-white font-medium py-3 rounded-xl transition-all duration-300 shadow-lg flex items-center justify-center space-x-2"
+                    >
+                      <Shield className="w-4 h-4" />
+                      <span>Admin Panel</span>
+                    </Button>
+                  )}
+                  {user.role === 'student' && (
+                    <Button
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        window.location.href = 'https://dev-lms-prototype.vercel.app/login';
+                      }}
+                      className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-medium py-3 rounded-xl transition-all duration-300 shadow-lg flex items-center justify-center space-x-2"
+                    >
+                      <User className="w-4 h-4" />
+                      <span>Navigate to LMS</span>
+                    </Button>
+                  )}
 
-    {/* Fixed Bottom CTA Buttons */}
-    <div className="flex-shrink-0 px-4 pt-2 pb-4 border-t border-cyan-500/20 bg-black/95 backdrop-blur-sm">
-      <div className="space-y-3">
-        {/* Contact button only shows on mobile (below md) since tablets already have it in header */}
-        <div className="md:hidden">
-          <Button
-            onClick={() => {
-              setIsMenuOpen(false);
-              router.push("/contact");
-            }}
-            className="w-full bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-400 hover:to-purple-400 text-white font-medium py-3 rounded-xl transition-all duration-300 shadow-lg flex items-center justify-center space-x-2"
-          >
-            <Phone className="w-4 h-4" />
-            <span>Contact Us</span>
-          </Button>
-        </div>
-        
-        {/* Mobile Authentication Buttons */}
-        {isAuthenticated && user ? (
-          <div className="space-y-2">
-            {user.role === 'admin' && (
-              <Button
-                onClick={() => {
-                  setIsMenuOpen(false);
-                  router.push('/admin');
-                }}
-                className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-400 hover:to-indigo-400 text-white font-medium py-3 rounded-xl transition-all duration-300 shadow-lg flex items-center justify-center space-x-2"
-              >
-                <Shield className="w-4 h-4" />
-                <span>Admin Panel</span>
-              </Button>
-            )}
-            {user.role === 'student' && (
-              <Button
-                onClick={() => {
-                  setIsMenuOpen(false);
-                  router.push('/');
-                }}
-                className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-medium py-3 rounded-xl transition-all duration-300 shadow-lg flex items-center justify-center space-x-2"
-              >
-                <User className="w-4 h-4" />
-                <span>Navigate to LMS</span>
-              </Button>
-            )}
-            <Button
-              onClick={() => {
-                setIsMenuOpen(false);
-                handleAuthLogout();
-              }}
-              variant="outline"
-              className="w-full border-red-500/50 text-red-300 hover:bg-red-500/10 hover:text-red-200 font-medium py-3 rounded-xl transition-all duration-300 flex items-center justify-center space-x-2"
-            >
-              <LogOut className="w-4 h-4" />
-              <span>Sign Out</span>
-            </Button>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {/* <Button
+                  <Button
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      handleAuthLogout();
+                    }}
+                    variant="outline"
+                    className="w-full border-red-500/50 text-red-300 hover:bg-red-500/10 hover:text-red-200 font-medium py-3 rounded-xl transition-all duration-300 flex items-center justify-center space-x-2"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    <span>Sign Out</span>
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {/* <Button
               onClick={() => {
                 setIsMenuOpen(false);
                 router.push('/signup');
@@ -1221,21 +1217,21 @@ export function Navigation() {
               <GraduationCap className="w-4 h-4" />
               <span>Sign Up as Student</span>
             </Button> */}
-            <Button
-              onClick={() => {
-                setIsMenuOpen(false);
-                router.push('/login');
-              }}
-              variant="outline"
-              className="w-full border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/10 hover:text-cyan-200 font-medium py-3 rounded-xl transition-all duration-300 flex items-center justify-center space-x-2"
-            >
-              <LogIn className="w-4 h-4" />
-              <span>Sign In</span>
-            </Button>
-          </div>
-        )}
-        
-        {/* {isAdminLoggedIn ? (
+                  <Button
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      router.push('/login');
+                    }}
+                    variant="outline"
+                    className="w-full border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/10 hover:text-cyan-200 font-medium py-3 rounded-xl transition-all duration-300 flex items-center justify-center space-x-2"
+                  >
+                    <LogIn className="w-4 h-4" />
+                    <span>Sign In</span>
+                  </Button>
+                </div>
+              )}
+
+              {/* {isAdminLoggedIn ? (
           <div className="space-y-2">
             <Button
               onClick={() => {
@@ -1270,11 +1266,11 @@ export function Navigation() {
             <span>Admin Login</span>
           </Button>
         )} */}
-      </div>
-    </div>
+            </div>
+          </div>
 
-    {/* Custom Scrollbar Styles */}
-    <style jsx>{`
+          {/* Custom Scrollbar Styles */}
+          <style jsx>{`
       .overflow-y-auto::-webkit-scrollbar {
         width: 4px;
       }
@@ -1290,10 +1286,10 @@ export function Navigation() {
         background: rgba(6, 182, 212, 0.7);
       }
     `}</style>
-  </div>
-)}
+        </div>
+      )}
 
-     
+
     </nav>
   );
 }
