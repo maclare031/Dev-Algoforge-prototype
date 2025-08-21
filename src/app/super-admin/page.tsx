@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import axios from 'axios';
@@ -20,8 +20,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { InstructorDetailModal } from '@/components/InstructorDetailModal';
 import { InstructorConfirmationModal } from '@/components/InstructorConfirmationModel';
 import { ClientOnlyDate } from '@/components/ClientOnlyDate';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useAuth } from '@/contexts/AuthContext'; // 1. Import the main useAuth hook
+import { useAuth } from '@/contexts/AuthContext';
 
 // --- TYPE DEFINITIONS ---
 interface Lead {
@@ -57,7 +56,6 @@ interface Student {
     joined: string;
 }
 
-// CORRECTED: 'students' is now a string to match the database
 interface Course {
     _id: string;
     title: string;
@@ -76,7 +74,6 @@ interface Stat {
     href?: string;
 }
 
-// ADDED: Interface for Blog posts
 interface Blog {
     slug: string;
     title: string;
@@ -85,6 +82,8 @@ interface Blog {
     image: string;
     publishedDate: string;
 }
+
+type TableItem = Lead | Instructor | Student | Course | Blog;
 
 const iconMap: { [key: string]: React.ElementType } = {
     Users, Calendar, Play, TrendingUp, BookOpen, Briefcase, FileText,
@@ -125,54 +124,49 @@ export default function SuperAdminDashboard() {
     const [selectedInstructor, setSelectedInstructor] = useState<Instructor | null>(null);
     const [instructorToDelete, setInstructorToDelete] = useState<Instructor | null>(null);
     const router = useRouter();
-    const { logout: mainAppLogout } = useAuth(); // 2. Get the logout function from the main context
+    const { logout: mainAppLogout } = useAuth();
 
+    const fetchDashboardData = useCallback(async () => {
+        setIsLoading(true);
+        try {
+            const [statsRes, leadsRes, scheduleCallsRes, joinProjectsRes, studentsRes, instructorsRes, coursesRes, blogsRes] = await Promise.all([
+                axios.get('/api/super-admin/stats'),
+                axios.get('/api/super-admin/data?view=leads'),
+                axios.get('/api/super-admin/data?view=scheduleCalls'),
+                axios.get('/api/super-admin/data?view=joinProjects'),
+                axios.get('/api/super-admin/data?view=students'),
+                axios.get('/api/super-admin/data?view=instructors'),
+                axios.get('/api/super-admin/data?view=courses'),
+                axios.get('/api/super-admin/data?view=blogs'),
+            ]);
+
+            const fetchedStats = statsRes.data.map((stat: any) => ({ ...stat, icon: iconMap[stat.icon] || Users }));
+            setStats(fetchedStats);
+
+            setViewData({
+                leads: { title: 'Leads', data: leadsRes.data, columns: ['Name', 'Contact', 'Type', 'Experience', 'Date', 'Actions'] },
+                scheduleCalls: { title: 'Schedule Calls', data: scheduleCallsRes.data, columns: ['Name', 'Contact', 'Type', 'Experience', 'Date', 'Actions'] },
+                joinProjects: { title: 'Join Projects', data: joinProjectsRes.data, columns: ['Name', 'Contact', 'Type', 'Experience', 'Date', 'Actions'] },
+                students: { title: 'Students', data: studentsRes.data, columns: ['Name', 'Contact', 'Course', 'Progress', 'Status', 'Joined', 'Actions'] },
+                courses: { title: 'Courses', data: coursesRes.data, columns: ['Title', 'Instructor', 'Students', 'Status', 'Created', 'Actions'] },
+                instructors: { title: 'Instructors', data: instructorsRes.data, columns: ['Name', 'Contact', 'Courses', 'Rating', 'Status', 'Actions'] },
+                blogs: { title: 'Blogs', data: blogsRes.data, columns: ['Title', 'Author', 'Category', 'Published', 'Actions'] },
+            });
+        } catch (error) {
+            console.error("Failed to fetch dashboard data:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
 
     useEffect(() => {
-        const fetchDashboardData = async () => {
-            setIsLoading(true);
-            try {
-                const [statsRes, leadsRes, scheduleCallsRes, joinProjectsRes, studentsRes, instructorsRes, coursesRes, blogsRes] = await Promise.all([
-                    axios.get('/api/super-admin/stats'),
-                    axios.get('/api/super-admin/data?view=leads'),
-                    axios.get('/api/super-admin/data?view=scheduleCalls'),
-                    axios.get('/api/super-admin/data?view=joinProjects'),
-                    axios.get('/api/super-admin/data?view=students'),
-                    axios.get('/api/super-admin/data?view=instructors'),
-                    axios.get('/api/super-admin/data?view=courses'),
-                    axios.get('/api/super-admin/data?view=blogs'),
-                ]);
-
-                const fetchedStats = statsRes.data.map((stat: any) => ({ ...stat, icon: iconMap[stat.icon] || Users }));
-                setStats(fetchedStats);
-
-                setViewData({
-                    leads: { title: 'Leads', data: leadsRes.data, columns: ['Name', 'Contact', 'Type', 'Experience', 'Date', 'Actions'] },
-                    scheduleCalls: { title: 'Schedule Calls', data: scheduleCallsRes.data, columns: ['Name', 'Contact', 'Type', 'Experience', 'Date', 'Actions'] },
-                    joinProjects: { title: 'Join Projects', data: joinProjectsRes.data, columns: ['Name', 'Contact', 'Type', 'Experience', 'Date', 'Actions'] },
-                    students: { title: 'Students', data: studentsRes.data, columns: ['Name', 'Contact', 'Course', 'Progress', 'Status', 'Joined', 'Actions'] },
-                    courses: { title: 'Courses', data: coursesRes.data, columns: ['Title', 'Instructor', 'Students', 'Status', 'Created', 'Actions'] },
-                    instructors: { title: 'Instructors', data: instructorsRes.data, columns: ['Name', 'Contact', 'Courses', 'Rating', 'Status', 'Actions'] },
-                    // CORRECTED: Updated columns for blogs
-                    blogs: { title: 'Blogs', data: blogsRes.data, columns: ['Title', 'Author', 'Category', 'Published', 'Actions'] },
-                });
-            } catch (error) {
-                console.error("Failed to fetch dashboard data:", error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
         fetchDashboardData();
-    }, []);
+    }, [fetchDashboardData]);
 
     const currentView = viewData[activeView];
     const viewsWithoutAddButton = ['leads', 'scheduleCalls', 'joinProjects'];
 
     const handleLogout = () => {
-        // This now calls the master logout function which handles everything:
-        // - logging out the main user
-        // - logging out the superadmin
-        // - redirecting to the correct /login page
         mainAppLogout();
     };
     const handleViewStudent = (student: Student) => {
@@ -183,10 +177,19 @@ export default function SuperAdminDashboard() {
         setStudentToDelete(student);
         setIsConfirmOpen(true);
     };
-    const confirmDelete = () => {
-        if (studentToDelete) alert(`Deleting ${studentToDelete.name}`);
-        setIsConfirmOpen(false);
-        setStudentToDelete(null);
+    const confirmDelete = async () => {
+        if (!studentToDelete) return;
+        try {
+            await axios.delete(`/api/super-admin/data?view=students&id=${studentToDelete._id}`);
+            alert(`Successfully deleted ${studentToDelete.name}`);
+            await fetchDashboardData();
+        } catch (error) {
+            console.error("Error deleting student:", error);
+            alert(`Failed to delete ${studentToDelete.name}`);
+        } finally {
+            setIsConfirmOpen(false);
+            setStudentToDelete(null);
+        }
     };
     const confirmBlock = () => {
         if (studentToDelete) alert(`Blocking ${studentToDelete.name}`);
@@ -201,17 +204,26 @@ export default function SuperAdminDashboard() {
         setLeadToDelete(lead);
         setIsConfirmOpen(true);
     };
-    const handleConfirmDelete = () => {
-        if (leadToDelete) {
-            console.log("Deleting lead:", leadToDelete._id);
-            alert(`Lead "${leadToDelete.name}" has been deleted.`);
-        } else if (instructorToDelete) {
-            console.log("Deleting instructor:", instructorToDelete._id);
-            alert(`Instructor "${instructorToDelete.name}" has been deleted.`);
+    const handleConfirmDelete = async () => {
+        try {
+            if (leadToDelete) {
+                await axios.delete(`/api/super-admin/data?view=leads&id=${leadToDelete._id}`);
+                console.log("Deleting lead:", leadToDelete._id);
+                alert(`Lead "${leadToDelete.name}" has been deleted.`);
+            } else if (instructorToDelete) {
+                await axios.delete(`/api/super-admin/data?view=instructors&id=${instructorToDelete._id}`);
+                console.log("Deleting instructor:", instructorToDelete._id);
+                alert(`Instructor "${instructorToDelete.name}" has been deleted.`);
+            }
+            await fetchDashboardData();
+        } catch (error) {
+            console.error("Error deleting item:", error);
+            alert("An error occurred while deleting the item. Please try again.");
+        } finally {
+            setIsConfirmOpen(false);
+            setLeadToDelete(null);
+            setInstructorToDelete(null);
         }
-        setIsConfirmOpen(false);
-        setLeadToDelete(null);
-        setInstructorToDelete(null);
     };
     const handleViewInstructor = (instructor: Instructor) => {
         setSelectedInstructor(instructor);
@@ -227,68 +239,71 @@ export default function SuperAdminDashboard() {
         setInstructorToDelete(null);
     };
 
-    const renderTableRow = (item: any, index: number) => {
+    const renderTableRow = (item: TableItem | null, index: number) => {
         if (!item) {
             return <TableRow key={index}><TableCell colSpan={currentView?.columns.length || 7} className="text-center text-slate-400 py-10">No data available for this view yet.</TableCell></TableRow>;
         }
         switch (activeView) {
             case 'students':
+                const student = item as Student;
                 return (
-                    <TableRow key={item._id} className="border-b-slate-800 hover:bg-slate-800/30">
-                        <TableCell className="font-medium text-slate-50">{item.name}</TableCell>
-                        <TableCell className="text-slate-400">{item.email}</TableCell>
-                        <TableCell className="text-slate-400">{item.course || 'N/A'}</TableCell>
-                        <TableCell className="text-slate-400">{item.progress || '0%'}</TableCell>
-                        <TableCell><Badge className={getStatusColor(item.status || 'Unknown')}>{item.status || 'Unknown'}</Badge></TableCell>
-                        <TableCell className="text-slate-400"><ClientOnlyDate dateString={item.joined} /></TableCell>
+                    <TableRow key={student._id} className="border-b-slate-800 hover:bg-slate-800/30">
+                        <TableCell className="font-medium text-slate-50">{student.name}</TableCell>
+                        <TableCell className="text-slate-400">{student.email}</TableCell>
+                        <TableCell className="text-slate-400">{student.course || 'N/A'}</TableCell>
+                        <TableCell className="text-slate-400">{student.progress || '0%'}</TableCell>
+                        <TableCell><Badge className={getStatusColor(student.status || 'Unknown')}>{student.status || 'Unknown'}</Badge></TableCell>
+                        <TableCell className="text-slate-400"><ClientOnlyDate dateString={student.joined} /></TableCell>
                         <TableCell className="text-right">
                             <div className="flex justify-end gap-2">
-                                <Button variant="outline" size="sm" onClick={() => handleViewStudent(item)}><Eye className="w-4 h-4 mr-2" />View</Button>
-                                <Button variant="destructive" size="sm" onClick={() => handleDeleteStudent(item)}><Trash2 className="w-4 h-4" /></Button>
+                                <Button variant="outline" size="sm" onClick={() => handleViewStudent(student)}><Eye className="w-4 h-4 mr-2" />View</Button>
+                                <Button variant="destructive" size="sm" onClick={() => handleDeleteStudent(student)}><Trash2 className="w-4 h-4" /></Button>
                                 <DropdownMenu><DropdownMenuTrigger asChild><Button variant="outline" size="icon" className="w-8 h-8"><MoreVertical className="w-4 h-4" /></Button></DropdownMenuTrigger><DropdownMenuContent align="end" className="bg-slate-900 border-slate-700 text-slate-50"><DropdownMenuItem onSelect={() => alert('Viewing Stats')}>View All Stats</DropdownMenuItem></DropdownMenuContent></DropdownMenu>
                             </div>
                         </TableCell>
                     </TableRow>
                 );
             case 'instructors':
+                const instructor = item as Instructor;
                 return (
-                    <TableRow key={item._id} className="border-b-slate-800 hover:bg-slate-800/30">
-                        <TableCell className="font-medium text-slate-50">{item.name}</TableCell>
-                        <TableCell className="text-slate-400">{item.email}</TableCell>
-                        <TableCell className="text-slate-400">{item.courses || '0'}</TableCell>
-                        <TableCell className="text-slate-400">{item.rating || 'N/A'}</TableCell>
-                        <TableCell><Badge className={getStatusColor(item.status || 'Unknown')}>{item.status || 'Unknown'}</Badge></TableCell>
+                    <TableRow key={instructor._id} className="border-b-slate-800 hover:bg-slate-800/30">
+                        <TableCell className="font-medium text-slate-50">{instructor.name}</TableCell>
+                        <TableCell className="text-slate-400">{instructor.email}</TableCell>
+                        <TableCell className="text-slate-400">{instructor.courses || '0'}</TableCell>
+                        <TableCell className="text-slate-400">{instructor.rating || 'N/A'}</TableCell>
+                        <TableCell><Badge className={getStatusColor(instructor.status || 'Unknown')}>{instructor.status || 'Unknown'}</Badge></TableCell>
                         <TableCell className="text-right">
                             <div className="flex justify-end gap-2">
-                                <Button variant="outline" size="sm" onClick={() => handleViewInstructor(item)}><Eye className="w-4 h-4 mr-2" />View</Button>
-                                <Button variant="destructive" size="sm" onClick={() => handleDeleteInstructor(item)}><Trash2 className="w-4 h-4" /></Button>
+                                <Button variant="outline" size="sm" onClick={() => handleViewInstructor(instructor)}><Eye className="w-4 h-4 mr-2" />View</Button>
+                                <Button variant="destructive" size="sm" onClick={() => handleDeleteInstructor(instructor)}><Trash2 className="w-4 h-4" /></Button>
                                 <DropdownMenu><DropdownMenuTrigger asChild><Button variant="outline" size="icon" className="w-8 h-8"><MoreVertical className="w-4 h-4" /></Button></DropdownMenuTrigger><DropdownMenuContent align="end" className="bg-slate-900 border-slate-700 text-slate-50"><DropdownMenuItem onSelect={() => alert('Viewing Stats')}>View All Stats</DropdownMenuItem></DropdownMenuContent></DropdownMenu>
                             </div>
                         </TableCell>
                     </TableRow>
                 );
             case 'courses':
+                const course = item as Course;
                 return (
-                    <TableRow key={item._id} className="border-b-slate-800 hover:bg-slate-800/30">
-                        <TableCell className="font-medium text-base text-slate-50">{item.title}</TableCell>
-                        <TableCell className="text-base text-slate-400">{item.instructor || 'N/A'}</TableCell>
-                        <TableCell className="text-base text-slate-400">{item.students || '0'}</TableCell>
-                        <TableCell><Badge className={getStatusColor(item.status)}>{item.status}</Badge></TableCell>
-                        <TableCell className="text-base text-slate-400"><ClientOnlyDate dateString={item.createdAt} /></TableCell>
+                    <TableRow key={course._id} className="border-b-slate-800 hover:bg-slate-800/30">
+                        <TableCell className="font-medium text-base text-slate-50">{course.title}</TableCell>
+                        <TableCell className="text-base text-slate-400">{course.instructor || 'N/A'}</TableCell>
+                        <TableCell className="text-base text-slate-400">{course.students || '0'}</TableCell>
+                        <TableCell><Badge className={getStatusColor(course.status)}>{course.status}</Badge></TableCell>
+                        <TableCell className="text-base text-slate-400"><ClientOnlyDate dateString={course.createdAt} /></TableCell>
                         <TableCell className="text-right">{/* Actions */}</TableCell>
                     </TableRow>
                 );
-            // ADDED: Case for rendering blog posts
             case 'blogs':
+                const blog = item as Blog;
                 return (
-                    <TableRow key={item.slug} className="border-b-slate-800 hover:bg-slate-800/30">
-                        <TableCell className="font-medium text-base text-slate-50">{item.title}</TableCell>
-                        <TableCell className="text-base text-slate-400">{item.author}</TableCell>
-                        <TableCell className="text-base text-slate-400">{item.category}</TableCell>
-                        <TableCell className="text-base text-slate-400"><ClientOnlyDate dateString={item.publishedDate} /></TableCell>
+                    <TableRow key={blog.slug} className="border-b-slate-800 hover:bg-slate-800/30">
+                        <TableCell className="font-medium text-base text-slate-50">{blog.title}</TableCell>
+                        <TableCell className="text-base text-slate-400">{blog.author}</TableCell>
+                        <TableCell className="text-base text-slate-400">{blog.category}</TableCell>
+                        <TableCell className="text-base text-slate-400"><ClientOnlyDate dateString={blog.publishedDate} /></TableCell>
                         <TableCell className="text-right">
                             <div className="flex justify-end gap-2">
-                                <Link href={`/blog/${item.slug}`} target="_blank">
+                                <Link href={`/blog/${blog.slug}`} target="_blank">
                                     <Button variant="outline" size="sm"><Eye className="w-4 h-4 mr-2" />View</Button>
                                 </Link>
                             </div>
@@ -296,17 +311,18 @@ export default function SuperAdminDashboard() {
                     </TableRow>
                 );
             default:
+                const lead = item as Lead;
                 return (
-                    <TableRow key={item._id} className="border-b-slate-800 hover:bg-slate-800/30">
-                        <TableCell className="font-medium text-slate-50">{item.name}</TableCell>
-                        <TableCell className="text-slate-400">{item.email}</TableCell>
-                        <TableCell><Badge variant="outline" className={getTypeColor(item.type)}>{item.type}</Badge></TableCell>
-                        <TableCell className="text-slate-400">{item.experience}</TableCell>
-                        <TableCell className="text-slate-400"><ClientOnlyDate dateString={item.date} /></TableCell>
+                    <TableRow key={lead._id} className="border-b-slate-800 hover:bg-slate-800/30">
+                        <TableCell className="font-medium text-slate-50">{lead.name}</TableCell>
+                        <TableCell className="text-slate-400">{lead.email}</TableCell>
+                        <TableCell><Badge variant="outline" className={getTypeColor(lead.type)}>{lead.type}</Badge></TableCell>
+                        <TableCell className="text-slate-400">{lead.experience}</TableCell>
+                        <TableCell className="text-slate-400"><ClientOnlyDate dateString={lead.date} /></TableCell>
                         <TableCell className="text-right">
                             <div className="flex justify-end gap-2">
-                                <Button variant="outline" size="sm" onClick={() => handleViewClick(item)}><Eye className="w-4 h-4 mr-2" /> View</Button>
-                                <Button variant="destructive" size="sm" onClick={() => handleDeleteClick(item)} className='text-white font-semibold bg-red-600 hover:bg-red-700 transition-all duration-300 shadow-lg hover:shadow-red-500/25'><Trash2 className="w-4 h-4 mr-2" /> Delete</Button>
+                                <Button variant="outline" size="sm" onClick={() => handleViewClick(lead)}><Eye className="w-4 h-4 mr-2" /> View</Button>
+                                <Button variant="destructive" size="sm" onClick={() => handleDeleteClick(lead)} className='text-white font-semibold bg-red-600 hover:bg-red-700 transition-all duration-300 shadow-lg hover:shadow-red-500/25'><Trash2 className="w-4 h-4 mr-2" /> Delete</Button>
                             </div>
                         </TableCell>
                     </TableRow>
@@ -351,7 +367,6 @@ export default function SuperAdminDashboard() {
                         </div>
                     </div>
                 </header>
-                {/* STYLING UPDATE: Added padding here */}
                 <main className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                     <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 mb-8">
                         {stats.map((stat, index) => {
@@ -366,8 +381,7 @@ export default function SuperAdminDashboard() {
                             {!viewsWithoutAddButton.includes(activeView) && (<Button className="bg-gradient-to-r from-cyan-500 to-purple-500"><Plus className="h-4 w-4 mr-2" /> Add New {currentView?.title?.slice(0, -1) || 'Entry'}</Button>)}
                         </div>
                     </div>
-                    {/* STYLING UPDATE: Added horizontal padding (px-6) */}
-                    {currentView ? (<div className="bg-black/50 backdrop-blur-lg border border-gray-700/50 rounded-lg overflow-hidden px-6"><div className="p-4 border-b border-slate-700/50 -mx-6 px-6"><h2 className="text-xl font-semibold text-white">{currentView.title} Table</h2></div><Table><TableHeader><TableRow className="border-b-slate-700/50 hover:bg-transparent">{currentView.columns.map((col: string) => <TableHead key={col} className={`text-lg ${col === 'Actions' ? 'text-right' : ''}`}>{col}</TableHead>)}</TableRow></TableHeader><TableBody>{currentView.data.length > 0 ? currentView.data.map(renderTableRow) : renderTableRow(null, 0)}</TableBody></Table></div>) : (<div className="bg-black/50 backdrop-blur-lg border border-gray-700/50 rounded-lg overflow-hidden p-10 text-center text-slate-400">Select a category to view data.</div>)}
+                    {currentView ? (<div className="bg-black/50 backdrop-blur-lg border border-gray-700/50 rounded-lg overflow-hidden px-6"><div className="p-4 border-b border-slate-700/50 -mx-6 px-6"><h2 className="text-xl font-semibold text-white">{currentView.title} Table</h2></div><Table><TableHeader><TableRow className="border-b-slate-700/50 hover:bg-transparent">{currentView.columns.map((col: string) => <TableHead key={col} className={`text-lg ${col === 'Actions' ? 'text-right' : ''}`}>{col}</TableHead>)}</TableRow></TableHeader><TableBody>{currentView.data && currentView.data.length > 0 ? currentView.data.map(renderTableRow) : renderTableRow(null, 0)}</TableBody></Table></div>) : (<div className="bg-black/50 backdrop-blur-lg border border-gray-700/50 rounded-lg overflow-hidden p-10 text-center text-slate-400">Select a category to view data.</div>)}
                 </main>
             </div>
             <LeadDetailModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} lead={selectedLead} />
