@@ -1,6 +1,6 @@
 // src/app/api/super-admin/data/route.ts
 import { NextResponse } from 'next/server';
-import {dbConnect} from '@/lib/db';
+import dbConnect from '@/lib/db';
 import User from '@/models/User';
 import Lead from '@/models/Lead';
 import Course from '@/models/Course';
