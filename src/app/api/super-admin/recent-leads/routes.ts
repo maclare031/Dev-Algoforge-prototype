@@ -1,6 +1,6 @@
 // src/app/api/super-admin/recent-leads/route.ts
 import { NextResponse } from 'next/server';
-import {dbConnect} from '@/lib/db';
+import dbConnect from '@/lib/db';
 import Lead from '@/models/Lead';
 
 export async function GET() {
