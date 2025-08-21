@@ -801,7 +801,7 @@ export function Navigation() {
                               <span className="text-sm font-medium">Dashboard</span>
                             </Link> */}
                             <Link
-                              href="https://dev-lms-prototype.vercel.app/login"
+                              href="https://dev-lms-prototype.vercel.app/courses"
                               target="_blank"
                               rel="noopener noreferrer"
                               className="flex items-center space-x-3 px-3 py-2 text-gray-300 hover:text-cyan-300 hover:bg-cyan-500/10 rounded-lg transition-all duration-200 group"
@@ -1187,7 +1187,7 @@ export function Navigation() {
                     <Button
                       onClick={() => {
                         setIsMenuOpen(false);
-                        window.location.href = 'https://dev-lms-prototype.vercel.app/login';
+                        window.location.href = 'https://dev-lms-prototype.vercel.app/courses';
                       }}
                       className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-medium py-3 rounded-xl transition-all duration-300 shadow-lg flex items-center justify-center space-x-2"
                     >
