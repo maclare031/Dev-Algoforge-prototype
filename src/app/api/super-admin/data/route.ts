@@ -1,3 +1,4 @@
+// src/app/api/super-admin/data/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import User from '@/models/User';
@@ -33,8 +34,11 @@ const transformStudentData = (student: any) => ({
 
 const transformInstructorData = (instructor: any) => ({
   _id: instructor._id.toString(),
-  name: instructor.username,
+  name: `${instructor.firstName} ${instructor.lastName}`,
+  username: instructor.username,
   email: instructor.email,
+  firstName: instructor.firstName,
+  lastName: instructor.lastName,
   status: instructor.status || 'Active',
   courses: 0, // This can be calculated later
   rating: 'N/A', // This can be calculated later
@@ -122,6 +126,37 @@ export async function GET(request: NextRequest) {
     console.error(`Error fetching data for view: ${view}`, error);
     return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });
   }
+}
+
+export async function PUT(request: NextRequest) {
+    const { searchParams } = new URL(request.url);
+    const view = searchParams.get('view');
+    const id = searchParams.get('id');
+    const body = await request.json();
+
+    if (!view || !id) {
+        return NextResponse.json({ message: 'View and ID parameters are required' }, { status: 400 });
+    }
+
+    try {
+        await dbConnect();
+        let result = null;
+
+        if (view === 'instructors') {
+            result = await User.findByIdAndUpdate(id, body, { new: true });
+        } else {
+            return NextResponse.json({ message: 'Invalid view type for updating' }, { status: 400 });
+        }
+
+        if (!result) {
+            return NextResponse.json({ message: 'Item not found' }, { status: 404 });
+        }
+
+        return NextResponse.json({ message: 'Item updated successfully', data: result });
+    } catch (error) {
+        console.error(`Error updating item from view ${view} with id ${id}:`, error);
+        return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });
+    }
 }
 
 export async function DELETE(request: NextRequest) {

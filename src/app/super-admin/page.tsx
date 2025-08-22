@@ -6,7 +6,6 @@ import { motion } from 'framer-motion';
 import axios from 'axios';
 import {
     Users, Calendar, Play, TrendingUp, BookOpen, Briefcase, FileText, Search, Plus, Brain, Download, Activity, LogOut, Eye, Trash2, MoreVertical, ArrowLeft,
-    ArrowRight,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,6 +23,7 @@ import { ClientOnlyDate } from '@/components/ClientOnlyDate';
 import { useAuth } from '@/contexts/AuthContext';
 import { AddStudentModal } from '@/components/AddStudentModal';
 import { AddInstructorModal } from '@/components/AddInstructorModal';
+import { EditInstructorModal } from '@/components/EditInstructorModal';
 import ManageCoursesPage from './courses/page';
 
 // --- TYPE DEFINITIONS ---
@@ -48,6 +48,9 @@ interface Instructor {
     courses: string;
     rating: string;
     status: string;
+    firstName: string;
+    lastName: string;
+    username: string;
 }
 
 interface Student {
@@ -121,6 +124,7 @@ export default function SuperAdminDashboard() {
     const [isLoading, setIsLoading] = useState(true);
     const [showAddStudentModal, setShowAddStudentModal] = useState(false);
     const [showAddInstructorModal, setShowAddInstructorModal] = useState(false);
+    const [showEditInstructorModal, setShowEditInstructorModal] = useState(false);
     const [showManageCourses, setShowManageCourses] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
@@ -180,6 +184,17 @@ export default function SuperAdminDashboard() {
     const handleInstructorAdded = () => {
         setShowAddInstructorModal(false);
         fetchDashboardData();
+    };
+    
+    const handleInstructorUpdated = () => {
+        setShowEditInstructorModal(false);
+        fetchDashboardData();
+    }
+
+    const handleEditInstructor = (instructor: Instructor) => {
+        setSelectedInstructor(instructor);
+        setIsInstructorModalOpen(false); 
+        setShowEditInstructorModal(true);
     };
 
     const currentView = viewData[activeView];
@@ -265,7 +280,7 @@ export default function SuperAdminDashboard() {
             case 'instructors':
                 return <Button onClick={() => setShowAddInstructorModal(true)} className="bg-gradient-to-r from-cyan-500 to-purple-500"><Plus className="h-4 w-4 mr-2" /> Add New Instructor</Button>;
             case 'courses':
-                return <Button onClick={() => setShowManageCourses(true)} className="bg-gradient-to-r from-cyan-500 to-purple-500"><ArrowRight className="h-4 w-4 mr-2" /> Go To Course</Button>;
+                return <Button onClick={() => router.push('/super-admin/courses')} className="bg-gradient-to-r from-cyan-500 to-purple-500"><Plus className="h-4 w-4 mr-2" /> Add New Course</Button>;
             default:
                 return null;
         }
@@ -404,15 +419,6 @@ export default function SuperAdminDashboard() {
                     </div>
                 </header>
                 <main className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                    {showManageCourses ? (
-                        <div>
-                            <Button onClick={() => setShowManageCourses(false)} variant="outline" className="mb-4">
-                                <ArrowLeft className="h-4 w-4 mr-2" />
-                                Back to Dashboard
-                            </Button>
-                            <ManageCoursesPage />
-                        </div>
-                    ) : (
                         <>
                             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 mb-8">
                                 {stats.map((stat, index) => {
@@ -429,17 +435,22 @@ export default function SuperAdminDashboard() {
                             </div>
                             {currentView ? (<div className="bg-black/50 backdrop-blur-lg border border-gray-700/50 rounded-lg overflow-hidden px-6"><div className="p-4 border-b border-slate-700/50 -mx-6 px-6"><h2 className="text-xl font-semibold text-white">{currentView.title} Table</h2></div><Table><TableHeader><TableRow className="border-b-slate-700/50 hover:bg-transparent">{currentView.columns.map((col: string) => <TableHead key={col} className={`text-lg ${col === 'Actions' ? 'text-right' : ''}`}>{col}</TableHead>)}</TableRow></TableHeader><TableBody>{currentView.data && currentView.data.length > 0 ? currentView.data.map(renderTableRow) : renderTableRow(null, 0)}</TableBody></Table></div>) : (<div className="bg-black/50 backdrop-blur-lg border border-gray-700/50 rounded-lg overflow-hidden p-10 text-center text-slate-400">Select a category to view data.</div>)}
                         </>
-                    )}
                 </main>
             </div>
             <LeadDetailModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} lead={selectedLead} />
             <ConfirmationModal isOpen={isConfirmOpen && !!leadToDelete} onClose={() => { setIsConfirmOpen(false); setLeadToDelete(null); }} onConfirm={handleConfirmDelete} title="Are you sure?" description={`This action cannot be undone. This will permanently delete the lead for "${leadToDelete?.name}".`} />
             <StudentDetailModal isOpen={isStudentModalOpen} onClose={() => setIsStudentModalOpen(false)} student={selectedStudent} />
             <StudentConfirmationModal isOpen={isConfirmOpen && !!studentToDelete} onClose={() => { setIsConfirmOpen(false); setStudentToDelete(null); }} onConfirmDelete={confirmDelete} onConfirmBlock={confirmBlock} studentName={studentToDelete?.name || ''} />
-            <InstructorDetailModal isOpen={isInstructorModalOpen} onClose={() => setIsInstructorModalOpen(false)} instructor={selectedInstructor} />
+            <InstructorDetailModal 
+                isOpen={isInstructorModalOpen} 
+                onClose={() => setIsInstructorModalOpen(false)} 
+                instructor={selectedInstructor}
+                onEdit={handleEditInstructor}
+            />
             <InstructorConfirmationModal isOpen={isConfirmOpen && !!instructorToDelete} onClose={() => { setIsConfirmOpen(false); setInstructorToDelete(null); }} onConfirmDelete={handleConfirmDelete} onConfirmBlock={handleConfirmInstructorBlock} title="Confirm Action on Instructor" description={`Are you sure you want to proceed with this action for "${instructorToDelete?.name}"?`} itemType="instructor" instructorName={instructorToDelete?.name || ''} />
             {showAddStudentModal && <AddStudentModal onClose={() => setShowAddStudentModal(false)} onStudentAdded={handleStudentAdded} />}
             {showAddInstructorModal && <AddInstructorModal onClose={() => setShowAddInstructorModal(false)} onInstructorAdded={handleInstructorAdded} />}
+            {showEditInstructorModal && <EditInstructorModal onClose={() => setShowEditInstructorModal(false)} onInstructorUpdated={handleInstructorUpdated} instructor={selectedInstructor!} />}
         </div>
     );
 }
