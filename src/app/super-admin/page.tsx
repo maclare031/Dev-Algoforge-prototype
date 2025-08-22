@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import {
-    Users, Calendar, Play, TrendingUp, BookOpen, Briefcase, FileText, Search, Plus, Brain, Download, Activity, LogOut, Eye, Trash2, MoreVertical,
+    Users, Calendar, Play, TrendingUp, BookOpen, Briefcase, FileText, Search, Plus, Brain, Download, Activity, LogOut, Eye, Trash2, MoreVertical, ArrowLeft,
+    ArrowRight,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,6 +23,8 @@ import { InstructorConfirmationModal } from '@/components/InstructorConfirmation
 import { ClientOnlyDate } from '@/components/ClientOnlyDate';
 import { useAuth } from '@/contexts/AuthContext';
 import { AddStudentModal } from '@/components/AddStudentModal';
+import { AddInstructorModal } from '@/components/AddInstructorModal';
+import ManageCoursesPage from './courses/page';
 
 // --- TYPE DEFINITIONS ---
 interface Lead {
@@ -86,6 +89,7 @@ interface Blog {
 
 type TableItem = Lead | Instructor | Student | Course | Blog;
 
+
 const iconMap: { [key: string]: React.ElementType } = {
     Users, Calendar, Play, TrendingUp, BookOpen, Briefcase, FileText,
 };
@@ -109,12 +113,15 @@ const getStatusColor = (status: string) => {
     }
 };
 
+
 export default function SuperAdminDashboard() {
     const [activeView, setActiveView] = useState('leads');
     const [stats, setStats] = useState<Stat[]>([]);
     const [viewData, setViewData] = useState<any>({});
     const [isLoading, setIsLoading] = useState(true);
     const [showAddStudentModal, setShowAddStudentModal] = useState(false);
+    const [showAddInstructorModal, setShowAddInstructorModal] = useState(false);
+    const [showManageCourses, setShowManageCourses] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -170,9 +177,13 @@ export default function SuperAdminDashboard() {
         fetchDashboardData();
     };
 
-    const currentView = viewData[activeView];
-    const viewsWithoutAddButton = ['leads', 'scheduleCalls', 'joinProjects'];
+    const handleInstructorAdded = () => {
+        setShowAddInstructorModal(false);
+        fetchDashboardData();
+    };
 
+    const currentView = viewData[activeView];
+    
     const handleLogout = () => {
         mainAppLogout();
     };
@@ -245,6 +256,20 @@ export default function SuperAdminDashboard() {
         setIsConfirmOpen(false);
         setInstructorToDelete(null);
     };
+
+
+    const renderAddButton = () => {
+        switch (activeView) {
+            case 'students':
+                return <Button onClick={() => setShowAddStudentModal(true)} className="bg-gradient-to-r from-cyan-500 to-purple-500"><Plus className="h-4 w-4 mr-2" /> Add New Student</Button>;
+            case 'instructors':
+                return <Button onClick={() => setShowAddInstructorModal(true)} className="bg-gradient-to-r from-cyan-500 to-purple-500"><Plus className="h-4 w-4 mr-2" /> Add New Instructor</Button>;
+            case 'courses':
+                return <Button onClick={() => setShowManageCourses(true)} className="bg-gradient-to-r from-cyan-500 to-purple-500"><ArrowRight className="h-4 w-4 mr-2" /> Go To Course</Button>;
+            default:
+                return null;
+        }
+    }
 
     const renderTableRow = (item: TableItem | null, index: number) => {
         if (!item) {
@@ -340,6 +365,7 @@ export default function SuperAdminDashboard() {
         }
     };
 
+
     if (isLoading) {
         return <div className="flex items-center justify-center min-h-screen bg-black text-white">Loading Dashboard...</div>
     }
@@ -378,28 +404,32 @@ export default function SuperAdminDashboard() {
                     </div>
                 </header>
                 <main className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 mb-8">
-                        {stats.map((stat, index) => {
-                            const isClickable = stat.id in viewData;
-                            const cardContent = (<motion.div key={index} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }} onClick={() => isClickable && setActiveView(stat.id)} className={`bg-black/50 border rounded-xl p-4 shadow-lg transition-all duration-300 group ${isClickable ? 'cursor-pointer' : 'cursor-default'} ${activeView === stat.id ? `border-${stat.color}-500/80 shadow-${stat.color}-500/20` : `border-slate-700/50 ${isClickable ? `hover:border-${stat.color}-500/60` : ''}`}`}><div className="flex items-start justify-between"><div><p className="text-sm text-gray-400">{stat.title}</p><p className="text-2xl font-bold text-white mt-1">{stat.value}</p></div><div className={`p-2 rounded-lg bg-${stat.color}-500/10`}><stat.icon className={`h-5 w-5 text-${stat.color}-400`} /></div></div></motion.div>);
-                            return stat.href ? <Link href={stat.href} key={stat.id}>{cardContent}</Link> : cardContent;
-                        })}
-                    </div>
-                    <div className="bg-black/50 backdrop-blur-lg border border-gray-700/50 rounded-lg p-4 mb-8">
-                        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                            <div className="relative w-full sm:max-w-xs"><Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" /><Input placeholder="Search entries..." className="pl-10 bg-slate-800/50 border-slate-700 focus:border-cyan-500" /></div>
-                            {activeView === 'students' && (
-                                <Button
-                                    onClick={() => setShowAddStudentModal(true)}
-                                    className="bg-gradient-to-r from-cyan-500 to-purple-500"
-                                >
-                                    <Plus className="h-4 w-4 mr-2" /> Add New Student
-                                </Button>
-                            )}
-                            {!viewsWithoutAddButton.includes(activeView) && activeView !== 'students' && (<Button className="bg-gradient-to-r from-cyan-500 to-purple-500"><Plus className="h-4 w-4 mr-2" /> Add New {currentView?.title?.slice(0, -1) || 'Entry'}</Button>)}
+                    {showManageCourses ? (
+                        <div>
+                            <Button onClick={() => setShowManageCourses(false)} variant="outline" className="mb-4">
+                                <ArrowLeft className="h-4 w-4 mr-2" />
+                                Back to Dashboard
+                            </Button>
+                            <ManageCoursesPage />
                         </div>
-                    </div>
-                    {currentView ? (<div className="bg-black/50 backdrop-blur-lg border border-gray-700/50 rounded-lg overflow-hidden px-6"><div className="p-4 border-b border-slate-700/50 -mx-6 px-6"><h2 className="text-xl font-semibold text-white">{currentView.title} Table</h2></div><Table><TableHeader><TableRow className="border-b-slate-700/50 hover:bg-transparent">{currentView.columns.map((col: string) => <TableHead key={col} className={`text-lg ${col === 'Actions' ? 'text-right' : ''}`}>{col}</TableHead>)}</TableRow></TableHeader><TableBody>{currentView.data && currentView.data.length > 0 ? currentView.data.map(renderTableRow) : renderTableRow(null, 0)}</TableBody></Table></div>) : (<div className="bg-black/50 backdrop-blur-lg border border-gray-700/50 rounded-lg overflow-hidden p-10 text-center text-slate-400">Select a category to view data.</div>)}
+                    ) : (
+                        <>
+                            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 mb-8">
+                                {stats.map((stat, index) => {
+                                    const isClickable = stat.id in viewData;
+                                    const cardContent = (<motion.div key={index} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }} onClick={() => isClickable && setActiveView(stat.id)} className={`bg-black/50 border rounded-xl p-4 shadow-lg transition-all duration-300 group ${isClickable ? 'cursor-pointer' : 'cursor-default'} ${activeView === stat.id ? `border-${stat.color}-500/80 shadow-${stat.color}-500/20` : `border-slate-700/50 ${isClickable ? `hover:border-${stat.color}-500/60` : ''}`}`}><div className="flex items-start justify-between"><div><p className="text-sm text-gray-400">{stat.title}</p><p className="text-2xl font-bold text-white mt-1">{stat.value}</p></div><div className={`p-2 rounded-lg bg-${stat.color}-500/10`}><stat.icon className={`h-5 w-5 text-${stat.color}-400`} /></div></div></motion.div>);
+                                    return stat.href ? <Link href={stat.href} key={stat.id}>{cardContent}</Link> : cardContent;
+                                })}
+                            </div>
+                            <div className="bg-black/50 backdrop-blur-lg border border-gray-700/50 rounded-lg p-4 mb-8">
+                                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                                    <div className="relative w-full sm:max-w-xs"><Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" /><Input placeholder="Search entries..." className="pl-10 bg-slate-800/50 border-slate-700 focus:border-cyan-500" /></div>
+                                    {renderAddButton()}
+                                </div>
+                            </div>
+                            {currentView ? (<div className="bg-black/50 backdrop-blur-lg border border-gray-700/50 rounded-lg overflow-hidden px-6"><div className="p-4 border-b border-slate-700/50 -mx-6 px-6"><h2 className="text-xl font-semibold text-white">{currentView.title} Table</h2></div><Table><TableHeader><TableRow className="border-b-slate-700/50 hover:bg-transparent">{currentView.columns.map((col: string) => <TableHead key={col} className={`text-lg ${col === 'Actions' ? 'text-right' : ''}`}>{col}</TableHead>)}</TableRow></TableHeader><TableBody>{currentView.data && currentView.data.length > 0 ? currentView.data.map(renderTableRow) : renderTableRow(null, 0)}</TableBody></Table></div>) : (<div className="bg-black/50 backdrop-blur-lg border border-gray-700/50 rounded-lg overflow-hidden p-10 text-center text-slate-400">Select a category to view data.</div>)}
+                        </>
+                    )}
                 </main>
             </div>
             <LeadDetailModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} lead={selectedLead} />
@@ -408,12 +438,8 @@ export default function SuperAdminDashboard() {
             <StudentConfirmationModal isOpen={isConfirmOpen && !!studentToDelete} onClose={() => { setIsConfirmOpen(false); setStudentToDelete(null); }} onConfirmDelete={confirmDelete} onConfirmBlock={confirmBlock} studentName={studentToDelete?.name || ''} />
             <InstructorDetailModal isOpen={isInstructorModalOpen} onClose={() => setIsInstructorModalOpen(false)} instructor={selectedInstructor} />
             <InstructorConfirmationModal isOpen={isConfirmOpen && !!instructorToDelete} onClose={() => { setIsConfirmOpen(false); setInstructorToDelete(null); }} onConfirmDelete={handleConfirmDelete} onConfirmBlock={handleConfirmInstructorBlock} title="Confirm Action on Instructor" description={`Are you sure you want to proceed with this action for "${instructorToDelete?.name}"?`} itemType="instructor" instructorName={instructorToDelete?.name || ''} />
-            {showAddStudentModal && (
-                <AddStudentModal
-                    onClose={() => setShowAddStudentModal(false)}
-                    onStudentAdded={handleStudentAdded}
-                />
-            )}
+            {showAddStudentModal && <AddStudentModal onClose={() => setShowAddStudentModal(false)} onStudentAdded={handleStudentAdded} />}
+            {showAddInstructorModal && <AddInstructorModal onClose={() => setShowAddInstructorModal(false)} onInstructorAdded={handleInstructorAdded} />}
         </div>
     );
 }
