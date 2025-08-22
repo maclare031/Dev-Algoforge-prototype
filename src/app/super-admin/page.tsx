@@ -21,6 +21,7 @@ import { InstructorDetailModal } from '@/components/InstructorDetailModal';
 import { InstructorConfirmationModal } from '@/components/InstructorConfirmationModel';
 import { ClientOnlyDate } from '@/components/ClientOnlyDate';
 import { useAuth } from '@/contexts/AuthContext';
+import { AddStudentModal } from '@/components/AddStudentModal';
 
 // --- TYPE DEFINITIONS ---
 interface Lead {
@@ -113,6 +114,7 @@ export default function SuperAdminDashboard() {
     const [stats, setStats] = useState<Stat[]>([]);
     const [viewData, setViewData] = useState<any>({});
     const [isLoading, setIsLoading] = useState(true);
+    const [showAddStudentModal, setShowAddStudentModal] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -162,6 +164,11 @@ export default function SuperAdminDashboard() {
     useEffect(() => {
         fetchDashboardData();
     }, [fetchDashboardData]);
+
+    const handleStudentAdded = () => {
+        setShowAddStudentModal(false);
+        fetchDashboardData();
+    };
 
     const currentView = viewData[activeView];
     const viewsWithoutAddButton = ['leads', 'scheduleCalls', 'joinProjects'];
@@ -381,7 +388,15 @@ export default function SuperAdminDashboard() {
                     <div className="bg-black/50 backdrop-blur-lg border border-gray-700/50 rounded-lg p-4 mb-8">
                         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                             <div className="relative w-full sm:max-w-xs"><Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" /><Input placeholder="Search entries..." className="pl-10 bg-slate-800/50 border-slate-700 focus:border-cyan-500" /></div>
-                            {!viewsWithoutAddButton.includes(activeView) && (<Button className="bg-gradient-to-r from-cyan-500 to-purple-500"><Plus className="h-4 w-4 mr-2" /> Add New {currentView?.title?.slice(0, -1) || 'Entry'}</Button>)}
+                            {activeView === 'students' && (
+                                <Button
+                                    onClick={() => setShowAddStudentModal(true)}
+                                    className="bg-gradient-to-r from-cyan-500 to-purple-500"
+                                >
+                                    <Plus className="h-4 w-4 mr-2" /> Add New Student
+                                </Button>
+                            )}
+                            {!viewsWithoutAddButton.includes(activeView) && activeView !== 'students' && (<Button className="bg-gradient-to-r from-cyan-500 to-purple-500"><Plus className="h-4 w-4 mr-2" /> Add New {currentView?.title?.slice(0, -1) || 'Entry'}</Button>)}
                         </div>
                     </div>
                     {currentView ? (<div className="bg-black/50 backdrop-blur-lg border border-gray-700/50 rounded-lg overflow-hidden px-6"><div className="p-4 border-b border-slate-700/50 -mx-6 px-6"><h2 className="text-xl font-semibold text-white">{currentView.title} Table</h2></div><Table><TableHeader><TableRow className="border-b-slate-700/50 hover:bg-transparent">{currentView.columns.map((col: string) => <TableHead key={col} className={`text-lg ${col === 'Actions' ? 'text-right' : ''}`}>{col}</TableHead>)}</TableRow></TableHeader><TableBody>{currentView.data && currentView.data.length > 0 ? currentView.data.map(renderTableRow) : renderTableRow(null, 0)}</TableBody></Table></div>) : (<div className="bg-black/50 backdrop-blur-lg border border-gray-700/50 rounded-lg overflow-hidden p-10 text-center text-slate-400">Select a category to view data.</div>)}
@@ -393,6 +408,12 @@ export default function SuperAdminDashboard() {
             <StudentConfirmationModal isOpen={isConfirmOpen && !!studentToDelete} onClose={() => { setIsConfirmOpen(false); setStudentToDelete(null); }} onConfirmDelete={confirmDelete} onConfirmBlock={confirmBlock} studentName={studentToDelete?.name || ''} />
             <InstructorDetailModal isOpen={isInstructorModalOpen} onClose={() => setIsInstructorModalOpen(false)} instructor={selectedInstructor} />
             <InstructorConfirmationModal isOpen={isConfirmOpen && !!instructorToDelete} onClose={() => { setIsConfirmOpen(false); setInstructorToDelete(null); }} onConfirmDelete={handleConfirmDelete} onConfirmBlock={handleConfirmInstructorBlock} title="Confirm Action on Instructor" description={`Are you sure you want to proceed with this action for "${instructorToDelete?.name}"?`} itemType="instructor" instructorName={instructorToDelete?.name || ''} />
+            {showAddStudentModal && (
+                <AddStudentModal
+                    onClose={() => setShowAddStudentModal(false)}
+                    onStudentAdded={handleStudentAdded}
+                />
+            )}
         </div>
     );
 }
