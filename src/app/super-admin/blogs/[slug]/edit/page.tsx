@@ -72,7 +72,7 @@ export default function EditBlogPage() {
         setError('');
 
         try {
-            const res = await axios.put(`/api/super-admin/blogs/${slug}`, {
+            const res = await axios.put(`${apiUrl}/api/super-admin/blogs/${slug}`, {
                 title,
                 author,
                 content,
