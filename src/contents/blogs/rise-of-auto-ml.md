@@ -7,7 +7,7 @@ tags: ["autoML", "machine-learning", "no-code", "AI", "data-science"]
 category: "Machine Learning"
 image: "https://i.ibb.co/FqWyHMBy/head-machine-learning-automl.webp"
 featured: true
-readTime: "10 min read"
+readTime: "10"
 ---
 
 

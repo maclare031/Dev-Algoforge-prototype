@@ -7,7 +7,7 @@ tags: ["machine-learning", "datasets", "AI ethics", "LLMs", "multimodal"]
 category: "ML Resources"
 image: "https://i.ibb.co/Pv1Mqf9h/dataset.png"
 featured: true
-readTime: "9 min read"
+readTime: "9"
 ---
 
 ## Introduction: The Role of Data in Machine Learning

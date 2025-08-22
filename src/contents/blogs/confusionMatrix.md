@@ -7,7 +7,7 @@ tags: ["machine-learning", "data-science", "model-evaluation", "confusion-matrix
 category: "Data Science"
 image: "https://i.ibb.co/KpBVkCVQ/Table1-2-png.webp"
 featured: true
-readTime: "12 min read"
+readTime: "12"
 ---
 
 In the rapidly changing field of machine learning, achieving a high accuracy score can feel like a major success. But accuracy alone can be misleading—especially in real-world, high-stakes scenarios like cancer prediction, fraud detection, or spam classification. That’s where the **confusion matrix** becomes essential: a simple yet powerful tool for understanding the *complete performance picture* of your classification model.

@@ -7,7 +7,7 @@ tags: ["machine-learning", "data-science", "model-evaluation", "confusion-matrix
 category: "Data Science"
 image: "https://images.unsplash.com/photo-1674027444485-cec3da58eef4?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8YXJ0aWZpY2lhbCUyMGludGVsbGlnZW5jZXxlbnwwfHwwfHx8MA%3D%3D"
 featured: true
-readTime: "8 min read"
+readTime: "8"
 ---
 
 When we think about bias, we can define it simply as **discrimination**—favoring one thing over another. But how does bias occur in AI? Is it really possible?
