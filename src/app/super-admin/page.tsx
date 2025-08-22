@@ -128,7 +128,6 @@ export default function SuperAdminDashboard() {
     const [viewData, setViewData] = useState<any>({});
     const [isLoading, setIsLoading] = useState(true);
     const [showAddStudentModal, setShowAddStudentModal] = useState(false);
-    const [showEditStudentModal, setShowEditStudentModal] = useState(false);
     const [showAddInstructorModal, setShowAddInstructorModal] = useState(false);
     const [showEditInstructorModal, setShowEditInstructorModal] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
