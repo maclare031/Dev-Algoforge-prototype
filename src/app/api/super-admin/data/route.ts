@@ -51,6 +51,28 @@ const transformCourseData = (course: any) => ({
 
 // --- API Route Handlers ---
 
+export async function POST(request: Request) {
+  try {
+    await dbConnect();
+    const { searchParams } = new URL(request.url);
+    const view = searchParams.get('view');
+    const body = await request.json();
+
+    switch (view) {
+      case 'instructors':
+        const newInstructor = new User({
+            ...body,
+            role: 'admin',
+        });
+        await newInstructor.save();
+        return NextResponse.json(newInstructor, { status: 201 });
+    }
+  } catch (error) {
+    console.error('Failed to create data:', error);
+    return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });
+  }
+}
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const view = searchParams.get('view');
