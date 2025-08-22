@@ -315,7 +315,10 @@ export default function SuperAdminDashboard() {
                 return (
                     <TableRow key={lead._id} className="border-b-slate-800 hover:bg-slate-800/30">
                         <TableCell className="font-medium text-slate-50">{lead.name}</TableCell>
-                        <TableCell className="text-slate-400">{lead.email}</TableCell>
+                        <TableCell className="text-slate-400">
+                            <div>{lead.email}</div>
+                            <div>{lead.phone}</div>
+                        </TableCell>
                         <TableCell><Badge variant="outline" className={getTypeColor(lead.type)}>{lead.type}</Badge></TableCell>
                         <TableCell className="text-slate-400">{lead.experience}</TableCell>
                         <TableCell className="text-slate-400"><ClientOnlyDate dateString={lead.date} /></TableCell>
