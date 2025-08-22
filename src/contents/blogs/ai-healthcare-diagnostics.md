@@ -7,7 +7,7 @@ tags: ["AI", "healthcare", "diagnostics", "medical-imaging", "data-privacy"]
 category: "Healthcare AI"
 image: "https://i.ibb.co/ZzsVSjT4/ai.webp"
 featured: true
-readTime: "11 min read"
+readTime: "11"
 ---
 
 

@@ -7,7 +7,7 @@ tags: ["machine-learning", "python", "scikit-learn", "data-science", "tutorial"]
 category: "Machine Learning"
 image: "https://i.ibb.co/d0MjMBWj/steps-to-build-a-model-with-scikit-learn.webp"
 featured: true
-readTime: "15 min read"
+readTime: "15"
 ---
 
 # How to Build Your First Machine Learning Model Using Scikit-Learn

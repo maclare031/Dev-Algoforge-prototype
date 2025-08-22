@@ -7,7 +7,7 @@ tags: ["mern", "cloudinary", "multer", "image-upload", "nodejs", "react"]
 category: "Web Development"
 image: "https://i.ibb.co/nMZQKNCd/lodinary.jpg"
 featured: true
-readTime: "10 min read"
+readTime: "10"
 ---
 
 ## Introduction

@@ -1,3 +1,5 @@
+// src/components/blog-card.tsx
+
 "use client";
 
 import Link from "next/link";
@@ -29,11 +31,12 @@ export function BlogCard({ post, featured = false }: BlogCardProps) {
       {/* Image */}
       <div className={`relative overflow-hidden ${featured ? "h-28 sm:h-32" : "h-24 sm:h-28"}`}>
         <Image
-          src={post.image || "/images/blog/default-blog.jpg"}
+          src={post.image || "public/images/no-image-icon-23485.png"}
           alt={post.title}
           fill
-          className="object-cover"
+          className="object-fit"
           sizes="(max-width: 768px) 100vw, 25vw"
+          onError={(e) => { e.currentTarget.src = "public/images/no-image-icon-23485.png"; }}
         />
         <div className="absolute bottom-1 left-1">
           <span className="px-1.5 py-0.5 text-[10px] font-medium bg-black/60 text-white rounded">
@@ -86,9 +89,10 @@ export function BlogCard({ post, featured = false }: BlogCardProps) {
               <span>{formatDate(post.date)}</span>
             </div>
           </div>
+          {/* --- CORRECTED READ TIME DISPLAY --- */}
           <div className="flex items-center gap-0.5">
             <Clock className="w-3 h-3" />
-            <span>{post.readTime}</span>
+            <span>{post.readTime} min read</span>
           </div>
         </div>
 
