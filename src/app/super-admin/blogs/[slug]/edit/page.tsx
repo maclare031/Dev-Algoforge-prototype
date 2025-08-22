@@ -37,8 +37,11 @@ export default function EditBlogPage() {
         if (slug) {
             const fetchPost = async () => {
                 setIsLoading(true);
+
+                 const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+                
                 try {
-                    const res = await axios.get(`/api/super-admin/blogs/${slug}`);
+                    const res = await axios.get(`${apiUrl}/api/super-admin/blogs/${slug}`);
                     if (res.data.success) {
                         const { post } = res.data;
                         setTitle(post.title);
