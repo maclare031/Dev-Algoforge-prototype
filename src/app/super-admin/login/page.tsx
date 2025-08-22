@@ -15,35 +15,37 @@ export default function SuperAdminLogin() {
   const [isLoading, setIsLoading] = useState(false); // Add loading state
   const router = useRouter();
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setIsLoading(true);
+// src/app/super-admin/login/page.tsx
 
-    try {
-      const res = await fetch('/api/auth', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username: email, password, role: 'super-admin' }),
-      });
+const handleLogin = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setError('');
+  setIsLoading(true);
 
-      const data = await res.json();
+  try {
+    const res = await fetch('/api/super-admin/login', { // Corrected endpoint
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      // The email state variable is already being used for the username
+      body: JSON.stringify({ email, password }),
+    });
 
-      if (data.success) {
-        localStorage.setItem('superAdminAuth', 'true');
-        // localStorage.setItem('token', data.token); // Store the token
-        router.push('/super-admin');
-      } else {
-        setError(data.message || 'An error occurred.');
-      }
-    } catch (err) {
-      setError('Failed to connect to the server.');
-    } finally {
-      setIsLoading(false);
+    const data = await res.json();
+
+    if (data.success) {
+      // No longer need to set localStorage
+      router.push('/super-admin');
+    } else {
+      setError(data.message || 'An error occurred.');
     }
-  };
+  } catch (err) {
+    setError('Failed to connect to the server.');
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black flex items-center justify-center p-4">

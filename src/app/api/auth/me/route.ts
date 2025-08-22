@@ -7,8 +7,8 @@ import jwt from 'jsonwebtoken';
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-in-production';
 
 export async function GET() {
-  const cookieStore = cookies();
-  const token = (await cookieStore).get('token')?.value;
+ const cookieStore = cookies();
+const token = (await cookieStore).get('token')?.value; 
 
   if (!token) {
     return NextResponse.json({ success: false, message: 'Not authenticated' }, { status: 401 });
