@@ -6,6 +6,8 @@ import { motion } from 'framer-motion';
 import axios from 'axios';
 import {
     Users, Calendar, Play, TrendingUp, BookOpen, Briefcase, FileText, Search, Plus, Brain, Download, Activity, LogOut, Eye, Trash2, MoreVertical, ArrowLeft,
+    MoveRight,
+    MoveRightIcon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,9 +26,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { AddStudentModal } from '@/components/AddStudentModal';
 import { AddInstructorModal } from '@/components/AddInstructorModal';
 import { EditInstructorModal } from '@/components/EditInstructorModal';
-import ManageCoursesPage from './courses/page';
+// import ManageCoursesPage from './courses/page';
 
-// --- TYPE DEFINITIONS ---
+// ... (interfaces and helper functions remain the same)
 interface Lead {
     _id: string;
     name: string;
@@ -61,6 +63,9 @@ interface Student {
     progress: string;
     status: string;
     joined: string;
+    firstName: string;
+    lastName: string;
+    username: string;
 }
 
 interface Course {
@@ -125,7 +130,6 @@ export default function SuperAdminDashboard() {
     const [showAddStudentModal, setShowAddStudentModal] = useState(false);
     const [showAddInstructorModal, setShowAddInstructorModal] = useState(false);
     const [showEditInstructorModal, setShowEditInstructorModal] = useState(false);
-    const [showManageCourses, setShowManageCourses] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -180,6 +184,17 @@ export default function SuperAdminDashboard() {
         setShowAddStudentModal(false);
         fetchDashboardData();
     };
+    
+    const handleStudentUpdated = () => {
+        setIsStudentModalOpen(false);
+        fetchDashboardData();
+    }
+
+    // const handleEditStudent = (student: Student) => {
+    //     setSelectedStudent(student);
+    //     setIsStudentModalOpen(false);
+    //     setShowEditStudentModal(true);
+    // };
 
     const handleInstructorAdded = () => {
         setShowAddInstructorModal(false);
@@ -280,7 +295,7 @@ export default function SuperAdminDashboard() {
             case 'instructors':
                 return <Button onClick={() => setShowAddInstructorModal(true)} className="bg-gradient-to-r from-cyan-500 to-purple-500"><Plus className="h-4 w-4 mr-2" /> Add New Instructor</Button>;
             case 'courses':
-                return <Button onClick={() => router.push('/super-admin/courses')} className="bg-gradient-to-r from-cyan-500 to-purple-500"><Plus className="h-4 w-4 mr-2" /> Add New Course</Button>;
+                return <Button onClick={() => router.push('/super-admin/courses')} className="bg-gradient-to-r from-cyan-500 to-purple-500"><MoveRightIcon className="h-4 w-4 mr-2" /> Go To Course</Button>;
             default:
                 return null;
         }
@@ -439,7 +454,12 @@ export default function SuperAdminDashboard() {
             </div>
             <LeadDetailModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} lead={selectedLead} />
             <ConfirmationModal isOpen={isConfirmOpen && !!leadToDelete} onClose={() => { setIsConfirmOpen(false); setLeadToDelete(null); }} onConfirm={handleConfirmDelete} title="Are you sure?" description={`This action cannot be undone. This will permanently delete the lead for "${leadToDelete?.name}".`} />
-            <StudentDetailModal isOpen={isStudentModalOpen} onClose={() => setIsStudentModalOpen(false)} student={selectedStudent} />
+            <StudentDetailModal 
+                isOpen={isStudentModalOpen} 
+                onClose={() => setIsStudentModalOpen(false)} 
+                student={selectedStudent}
+                onStudentUpdated={handleStudentUpdated}
+            />
             <StudentConfirmationModal isOpen={isConfirmOpen && !!studentToDelete} onClose={() => { setIsConfirmOpen(false); setStudentToDelete(null); }} onConfirmDelete={confirmDelete} onConfirmBlock={confirmBlock} studentName={studentToDelete?.name || ''} />
             <InstructorDetailModal 
                 isOpen={isInstructorModalOpen} 
@@ -449,6 +469,7 @@ export default function SuperAdminDashboard() {
             />
             <InstructorConfirmationModal isOpen={isConfirmOpen && !!instructorToDelete} onClose={() => { setIsConfirmOpen(false); setInstructorToDelete(null); }} onConfirmDelete={handleConfirmDelete} onConfirmBlock={handleConfirmInstructorBlock} title="Confirm Action on Instructor" description={`Are you sure you want to proceed with this action for "${instructorToDelete?.name}"?`} itemType="instructor" instructorName={instructorToDelete?.name || ''} />
             {showAddStudentModal && <AddStudentModal onClose={() => setShowAddStudentModal(false)} onStudentAdded={handleStudentAdded} />}
+            {/* {showEditStudentModal && <EditStudentModal onClose={() => setShowEditStudentModal(false)} onStudentUpdated={handleStudentUpdated} student={selectedStudent!} />} */}
             {showAddInstructorModal && <AddInstructorModal onClose={() => setShowAddInstructorModal(false)} onInstructorAdded={handleInstructorAdded} />}
             {showEditInstructorModal && <EditInstructorModal onClose={() => setShowEditInstructorModal(false)} onInstructorUpdated={handleInstructorUpdated} instructor={selectedInstructor!} />}
         </div>

@@ -23,14 +23,17 @@ const transformLeadData = (lead: any) => ({
 });
 
 const transformStudentData = (student: any) => ({
-  _id: student._id.toString(),
-  name: student.username,
-  email: student.email,
-  status: student.status || 'Active',
-  course: 'Not Enrolled', // This can be expanded later
-  progress: '0%', // This can be expanded later
-  joined: student.createdAt.toISOString(),
-});
+    _id: student._id.toString(),
+    name: `${student.firstName} ${student.lastName}`,
+    username: student.username,
+    email: student.email,
+    firstName: student.firstName,
+    lastName: student.lastName,
+    status: student.status || 'Active',
+    course: 'Not Enrolled', // This can be expanded later
+    progress: '0%', // This can be expanded later
+    joined: student.createdAt.toISOString(),
+  });
 
 const transformInstructorData = (instructor: any) => ({
   _id: instructor._id.toString(),
@@ -142,7 +145,7 @@ export async function PUT(request: NextRequest) {
         await dbConnect();
         let result = null;
 
-        if (view === 'instructors') {
+        if (view === 'instructors' || view === 'students') {
             result = await User.findByIdAndUpdate(id, body, { new: true });
         } else {
             return NextResponse.json({ message: 'Invalid view type for updating' }, { status: 400 });

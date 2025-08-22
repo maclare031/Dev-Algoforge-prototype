@@ -7,6 +7,7 @@ import { X, User, Mail, BookOpen, Star, Edit } from "lucide-react";
 interface Instructor {
   _id: string;
   name: string;
+  username: string;
   email: string;
   courses: string;
   rating: string;
@@ -46,6 +47,7 @@ export function InstructorDetailModal({
         <div className="px-6 pb-6 space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <InfoCard label="Name" value={instructor.name} />
+            <InfoCard label="Username" value={instructor.username} />
             <InfoCard label="Email" value={instructor.email} />
             <InfoCard label="Courses Taught" value={instructor.courses} icon={BookOpen} />
             <InfoCard label="Rating" value={instructor.rating} icon={Star} />
