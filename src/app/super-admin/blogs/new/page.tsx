@@ -35,8 +35,10 @@ export default function NewBlogPage() {
         setError('');
         setIsLoading(true);
 
+          const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+
         try {
-            const res = await axios.post('/api/super-admin/blogs', {
+            const res = await axios.post(`${apiUrl}/api/super-admin/blogs`, {
                 title,
                 author,
                 content,
