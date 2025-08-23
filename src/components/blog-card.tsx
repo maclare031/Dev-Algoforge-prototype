@@ -31,7 +31,7 @@ export function BlogCard({ post, featured = false }: BlogCardProps) {
       {/* Image */}
       <div className={`relative overflow-hidden ${featured ? "h-28 sm:h-32" : "h-24 sm:h-28"}`}>
         <Image
-          src={post.image || "public/images/no-image-icon-23485.png"}
+          src={post.image || ""}
           alt={post.title}
           fill
           className="object-fit"
