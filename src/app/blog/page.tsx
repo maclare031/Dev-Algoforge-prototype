@@ -3,8 +3,11 @@ import { getAllBlogPosts } from "@/lib/blog-server";
 import { getAllCategories, getAllTags } from "@/lib/blog";
 import { Tag, BookOpen, TrendingUp } from "lucide-react";
 
-export default function BlogPage() {
-  const blogPosts = getAllBlogPosts();
+// 1. Make the component an async function
+export default async function BlogPage() {
+  // 2. Await the result of the asynchronous function call
+  const blogPosts = await getAllBlogPosts();
+
   const categories = getAllCategories(blogPosts);
   const tags = getAllTags(blogPosts);
 
@@ -91,7 +94,6 @@ export default function BlogPage() {
               <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-orange-400" />
               <span>Featured</span>
             </h2>
-            {/* Updated grid classes: 1 on mobile, 3 on tablet (md), 4 on desktop (lg) */}
             <div className="mx-4 md:mx-0 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-3">
               {featuredPosts.map((post) => (
                 <BlogCard key={post.slug} post={post} featured={true} />
@@ -109,7 +111,6 @@ export default function BlogPage() {
                 <span>All Articles</span>
               </h2>
             )}
-            {/* Updated grid classes: 1 on mobile, 3 on tablet (md), 4 on desktop (lg) */}
             <div className="mx-4 md:mx-0 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-3">
               {regularPosts.map((post) => (
                 <BlogCard key={post.slug} post={post} />

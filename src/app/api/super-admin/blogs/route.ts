@@ -1,21 +1,19 @@
 // src/app/api/super-admin/blogs/route.ts
-
 import { NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
-import path from 'path';
-import matter from 'gray-matter';
-import { getAllBlogPosts } from '@/lib/blog-server'; // Ensure this function is correctly named and imported
+import connectDB from '@/lib/db';
+import BlogPostModel from '@/models/BlogPost';
+import { getAllBlogPosts } from '@/lib/blog-server';
 
 // Helper function to create a URL-friendly slug
 const createSlug = (title: string) => {
   return title
     .toLowerCase()
     .replace(/[^a-z0-9\s-]/g, '') // Remove non-alphanumeric characters
-    .replace(/\s+/g, '-')        // Replace spaces with hyphens
-    .replace(/-+/g, '-');         // Remove consecutive hyphens
+    .replace(/\s+/g, '-')       // Replace spaces with hyphens
+    .replace(/-+/g, '-');        // Remove consecutive hyphens
 };
 
-// GET all blog posts
+// GET all blog posts (This function is already correct as it uses the updated blog-server)
 export async function GET() {
   try {
     const posts = await getAllBlogPosts();
@@ -26,15 +24,16 @@ export async function GET() {
   }
 }
 
-// CREATE a new blog post
+// CREATE a new blog post in the database
 export async function POST(request: Request) {
   try {
-    // --- UPDATED TO INCLUDE ALL NEW FIELDS ---
+    await connectDB();
+
     const { 
         title, 
         author, 
         content, 
-        featuredImage, 
+        image, 
         category, 
         description, 
         tags, 
@@ -49,25 +48,29 @@ export async function POST(request: Request) {
 
     const slug = createSlug(title);
 
-    // Format the content with frontmatter
-    const fileContent = matter.stringify(content, {
-      title,
-      author,
-      date: date || new Date().toISOString(), // Use provided date or create a new one
-      category: category || 'General',
-      description,
-      tags: tags ? tags.split(',').map((tag: string) => tag.trim()) : [],
-      readTime: readTime || 0,
-      featured: featured || false,
-      image: featuredImage || '/images/blog/default-blog.png',
+    // Check if a post with this slug already exists to avoid duplicates
+    const existingPost = await BlogPostModel.findOne({ slug });
+    if (existingPost) {
+        return NextResponse.json({ success: false, message: 'A post with this title already exists.' }, { status: 409 });
+    }
+
+    const newPost = new BlogPostModel({
+        slug,
+        title,
+        author,
+        content,
+        description,
+        date: date || new Date(),
+        category: category || 'General',
+        tags: Array.isArray(tags) ? tags : [],
+        readTime: readTime || '5', // Assuming a default read time
+        featured: featured || false,
+        image: image || '/images/blog/default-blog.png',
     });
 
-    const filePath = path.join(process.cwd(), 'src', 'contents', 'blogs', `${slug}.md`);
+    await newPost.save();
 
-    // Write the new blog post file
-    await fs.writeFile(filePath, fileContent);
-
-    return NextResponse.json({ success: true, message: 'Blog post created successfully' });
+    return NextResponse.json({ success: true, message: 'Blog post created successfully', post: newPost });
   } catch (error) {
     console.error('Error creating blog post:', error);
     return NextResponse.json({ success: false, message: 'Internal server error' }, { status: 500 });

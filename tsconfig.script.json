@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "rootDir": "./src",  // <-- Add this line
+    "outDir": "./dist",
+    "noEmit": false,
+    "isolatedModules": false
+  },
+  "include": ["src/scripts/migrateBlogs.ts", "src/lib/blog-server.ts", "src/lib/db.ts", "src/models/BlogPost.ts"]
+}
