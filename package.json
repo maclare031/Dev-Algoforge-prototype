@@ -10,6 +10,8 @@
     "seed:users": "tsx --env-file .env.local src/scripts/seedUsers.ts",
     "seed:courses": "tsx --env-file .env.local src/scripts/seedCourses.ts",
     "seed:test-users": "tsx --env-file .env.local src/scripts/seedTestUsers.ts",
+    "build:script": "tsc --project tsconfig.script.json",
+    "migrate:run": "node -r dotenv/config dist/scripts/migrateBlogs.js",
     "create:super-admin": "tsx --env-file .env.local src/scripts/createSuperAdmin.ts"
   },
   "dependencies": {
@@ -33,7 +35,6 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cookie": "^1.0.2",
-    "dotenv": "^17.2.1",
     "framer-motion": "^12.23.0",
     "gray-matter": "^4.0.3",
     "highlight.js": "^11.11.1",
@@ -67,6 +68,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "autoprefixer": "^10.4.21",
+    "dotenv": "^17.2.1",
     "eslint": "^9",
     "eslint-config-next": "15.3.4",
     "postcss": "^8.5.6",

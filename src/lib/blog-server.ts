@@ -1,65 +1,44 @@
-import fs from 'fs';
-import path from 'path';
-import matter from 'gray-matter';
+// src/lib/blog-server.ts
+import connectDB from './db';
+import BlogPostModel, { IBlogPost } from '../models/BlogPost'; // Import the IBlogPost interface
 import { BlogPost } from './blog';
 
-const blogsDirectory = path.join(process.cwd(), 'src/contents/blogs');
-
-export function getAllBlogPosts(): BlogPost[] {
-  try {
-    const fileNames = fs.readdirSync(blogsDirectory);
-    const allPostsData = fileNames
-      .filter((fileName) => fileName.endsWith('.md'))
-      .map((fileName) => {
-        const slug = fileName.replace(/\.md$/, '');
-        const fullPath = path.join(blogsDirectory, fileName);
-        const fileContents = fs.readFileSync(fullPath, 'utf8');
-        const { data, content } = matter(fileContents);
-
-        return {
-          slug,
-          title: data.title || '',
-          description: data.description || '',
-          author: data.author || '',
-          date: data.date || '',
-          tags: data.tags || [],
-          category: data.category || '',
-          image: data.image || '/images/blog/default-blog.jpg',
-          featured: data.featured || false,
-          readTime: data.readTime || '',
-          content,
-        } as BlogPost;
-      })
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-
-    return allPostsData;
-  } catch (error) {
-    console.error('Error reading blog posts:', error);
-    return [];
-  }
+/**
+ * Fetches all blog posts from the database, sorted by date.
+ */
+export async function getAllBlogPosts(): Promise<BlogPost[]> {
+  await connectDB();
+  
+  // Explicitly type the result of the .lean() query with the IBlogPost interface
+  const posts = await BlogPostModel.find({}).sort({ date: -1 }).lean<IBlogPost[]>();
+  
+  // Now TypeScript knows that post.date is a Date object
+  return posts.map(post => ({
+    ...post,
+    // The _id field from MongoDB is an object, convert it to a string
+    _id: post._id.toString(), 
+    date: post.date.toISOString(),
+  })) as unknown as BlogPost[];
 }
 
-export function getBlogPost(slug: string): BlogPost | null {
-  try {
-    const fullPath = path.join(blogsDirectory, `${slug}.md`);
-    const fileContents = fs.readFileSync(fullPath, 'utf8');
-    const { data, content } = matter(fileContents);
+/**
+ * Fetches a single blog post from the database by its slug.
+ * @param slug The slug of the blog post to retrieve.
+ */
+export async function getBlogPost(slug: string): Promise<BlogPost | null> {
+  await connectDB();
 
-    return {
-      slug,
-      title: data.title || '',
-      description: data.description || '',
-      author: data.author || '',
-      date: data.date || '',
-      tags: data.tags || [],
-      category: data.category || '',
-      image: data.image || '/images/blog/default-blog.jpg',
-      featured: data.featured || false,
-      readTime: data.readTime || '',
-      content,
-    } as BlogPost;
-  } catch (error) {
-    console.error(`Error reading blog post ${slug}:`, error);
+  // Also type the .lean() query here
+  const post = await BlogPostModel.findOne({ slug }).lean<IBlogPost>();
+
+  if (!post) {
     return null;
   }
+
+  // Convert date and _id to strings to match the expected interface
+  return {
+    ...post,
+    _id: post._id.toString(),
+    date: post.date.toISOString(),
+  } as unknown as BlogPost;
 }

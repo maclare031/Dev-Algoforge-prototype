@@ -4,16 +4,13 @@ import dbConnect from '@/lib/db';
 import User from '@/models/User';
 import Lead from '@/models/Lead';
 import Course from '@/models/Course';
-import { getAllBlogPosts } from '@/lib/blog-server'; // CORRECTED: Use the real function name
+import BlogPost from '@/models/BlogPost'; // Import the BlogPost model
 
 export async function GET() {
   try {
     await dbConnect();
 
-    // CORRECTED: Call the real function
-    const allPosts = getAllBlogPosts();
-    const publishedBlogsCount = allPosts.length;
-
+    // Fetch all counts in parallel for better performance
     const [
       totalLeads,
       scheduleCalls,
@@ -21,6 +18,7 @@ export async function GET() {
       totalStudents,
       totalInstructors,
       activeCourses,
+      publishedBlogsCount // This will now hold the number from the database
     ] = await Promise.all([
       Lead.countDocuments(),
       Lead.countDocuments({ formType: /^Schedule\s?Call$/i }),
@@ -28,6 +26,7 @@ export async function GET() {
       User.countDocuments({ role: 'student' }),
       User.countDocuments({ role: 'admin' }),
       Course.countDocuments(),
+      BlogPost.countDocuments({}) // Efficiently count blog posts
     ]);
 
     const statsData = [
