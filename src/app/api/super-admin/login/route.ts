@@ -18,13 +18,13 @@ const SUPER_ADMIN = {
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 export async function POST(request: Request) {
-  // ... rest of the file remains the same{
   try {
     const { email, password } = await request.json();
 
     if (email === SUPER_ADMIN.email && password === SUPER_ADMIN.password) {
       const superAdminData = { ...SUPER_ADMIN };
-      // @ts-ignore
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      /* @ts-expect-error */
       delete superAdminData.password;
 
       const token = jwt.sign(
@@ -33,7 +33,10 @@ export async function POST(request: Request) {
         { expiresIn: '1h' }
       );
 
-      cookies().set('token', token, {
+      // Corrected cookie setting:
+      (await cookies()).set({
+        name: 'token',
+        value: token,
         httpOnly: true,
         secure: process.env.NODE_ENV !== 'development',
         sameSite: 'strict',
@@ -45,6 +48,7 @@ export async function POST(request: Request) {
     } else {
       return NextResponse.json({ success: false, message: 'Invalid credentials' }, { status: 401 });
     }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
     return NextResponse.json({ success: false, message: 'Internal server error' }, { status: 500 });
   }

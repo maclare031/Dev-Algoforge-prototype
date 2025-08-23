@@ -37,13 +37,13 @@ type Post = {
     readTime?: number;
 };
 
-const DEFAULT_IMAGE_URL = '/images/blog/default-blog.png';
 
 export default function BlogManagementPage() {
     const [posts, setPosts] = useState<Post[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const router = useRouter();
 
     const fetchPosts = useCallback(async () => {
@@ -57,6 +57,7 @@ export default function BlogManagementPage() {
             } else {
                 setError(data.message || "Failed to fetch posts.");
             }
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (err) {
             setError("An error occurred while connecting to the server.");
         } finally {
@@ -77,6 +78,7 @@ export default function BlogManagementPage() {
             } else {
                 setError(data.message || "Failed to delete the post.");
             }
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (err) {
             setError("An error occurred while deleting the post.");
         }
@@ -146,7 +148,6 @@ export default function BlogManagementPage() {
                                             )}
                                             <CardHeader className="p-4">
                                                 <div className="aspect-video bg-gray-900 rounded-md mb-4 flex items-center justify-center overflow-hidden">
-                                                    {/* eslint-disable-next-line @next/next/no-img-element, @next/next/no-img-element */}
                                                     <img
                                                         src={post.image || "public/images/no-image-icon-23485.png"}
                                                         alt={post.title}

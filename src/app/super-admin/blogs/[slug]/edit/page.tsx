@@ -33,13 +33,14 @@ export default function EditBlogPage() {
     const params = useParams();
     const slug = params.slug as string;
 
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+
+
     useEffect(() => {
         if (slug) {
             const fetchPost = async () => {
                 setIsLoading(true);
 
-                 const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
-                
                 try {
                     const res = await axios.get(`${apiUrl}/api/super-admin/blogs/${slug}`);
                     if (res.data.success) {
@@ -56,6 +57,7 @@ export default function EditBlogPage() {
                     } else {
                         setError("Failed to load blog post data.");
                     }
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 } catch (err) {
                     setError("Could not connect to the server.");
                 } finally {
@@ -64,12 +66,13 @@ export default function EditBlogPage() {
             };
             fetchPost();
         }
-    }, [slug]);
+    }, [apiUrl, slug]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSaving(true);
         setError('');
+
 
         try {
             const res = await axios.put(`${apiUrl}/api/super-admin/blogs/${slug}`, {
@@ -89,6 +92,7 @@ export default function EditBlogPage() {
             } else {
                 setError(res.data.message || "An error occurred while saving.");
             }
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (err) {
             setError("Failed to connect to the server.");
         } finally {
