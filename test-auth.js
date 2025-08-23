@@ -1,4 +1,5 @@
 // Test script to verify role-based authentication
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const axios = require('axios');
 
 async function testAuth() {

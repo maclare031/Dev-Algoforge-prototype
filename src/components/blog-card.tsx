@@ -29,12 +29,12 @@ export function BlogCard({ post, featured = false }: BlogCardProps) {
       )}
 
       {/* Image */}
-      <div className={`relative overflow-hidden ${featured ? "h-28 sm:h-32" : "h-24 sm:h-28"}`}>
+      <div className={`relative overflow-hidden ${featured ? "h-28 sm:h-44" : "h-24 sm:h-28"}`}>
         <Image
           src={post.image || ""}
           alt={post.title}
           fill
-          className="object-fit"
+          className="w-full h-full object-cover "
           sizes="(max-width: 768px) 100vw, 25vw"
           onError={(e) => { e.currentTarget.src = "public/images/no-image-icon-23485.png"; }}
         />
