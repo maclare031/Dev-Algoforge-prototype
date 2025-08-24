@@ -269,7 +269,7 @@ function AdminDashboardContent() {
       </div>
 
       {/* Enhanced Header */}
-      <div className="relative z-10 bg-gradient-to-br from-gray-900/90 to-black/90 backdrop-blur-xl border-b border-gray-700/50 sticky top-0">
+      <div className="relative z-10 bg-gradient-to-br from-gray-900/90 to-black/90 backdrop-blur-xl border-b border-gray-700/50 top-0">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-4 sm:py-6 gap-4">
             <motion.div
@@ -323,14 +323,14 @@ function AdminDashboardContent() {
                 <Activity className="h-4 w-4 mr-1" />
                 Refresh
               </Button>
-              <Button
+              {/* <Button
                 onClick={handleLogout}
                 variant="outline"
                 className="border-red-500/50 text-red-300 hover:bg-red-500/10 hover:text-red-200 font-medium px-4 xl:px-6 py-2.5 xl:py-3 rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-red-500/20 flex items-center space-x-2"
               >
                 <span className="hidden xl:inline">Logout</span>
                 <span className="xl:hidden">Out</span>
-              </Button>
+              </Button> */}
             </motion.div>
           </div>
         </div>
