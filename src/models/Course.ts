@@ -1,4 +1,43 @@
-import mongoose from 'mongoose';
+import mongoose, { Document, Schema } from 'mongoose';
+import './Module';
+
+export interface ICourse extends Document {
+  title: string;
+  subtitle?: string;
+  description: string;
+  longDescription?: string;
+  duration: string;
+  mode?: string;
+  students?: string;
+  rating?: number;
+  level?: string;
+  skills: string[];
+  price?: string;
+  originalPrice?: string;
+  tags: string[];
+  category: 'students' | 'professionals' | 'corporates';
+  courseCategory?: string;
+  instructor?: string;
+  lessons?: number;
+  projects?: number;
+  certificate: boolean;
+  language?: string;
+  prerequisites?: string;
+  curriculum: {
+    module: string;
+    lessons: number;
+    duration: string;
+    description: string;
+  }[];
+  syllabus: {
+    module: string;
+    topics: string[];
+  }[];
+  featured: boolean;
+  trending: boolean;
+  iconName: string;
+  modules: mongoose.Schema.Types.ObjectId[]; // <-- ADD THIS LINE
+}
 
 const courseSchema = new mongoose.Schema({
   title: {
@@ -89,6 +128,7 @@ const courseSchema = new mongoose.Schema({
   }],
   syllabus: {
     type: [{
+      _id: false,
       module: {
         type: String,
         required: [true, 'Syllabus module title is required']
@@ -112,10 +152,15 @@ const courseSchema = new mongoose.Schema({
     type: String,
     default: 'Code'
   },
+  // V-- ADD THIS NEW FIELD --V
+  modules: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Module'
+  }]
 }, {
   timestamps: true
 });
 
-const Course = mongoose.models.Course || mongoose.model('Course', courseSchema);
+const Course = mongoose.models.Course || mongoose.model<ICourse>('Course', courseSchema);
 
 export default Course;

@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server';
 import { CourseService } from '@/lib/courseService';
 import mongoose from 'mongoose';
 
 // Helper to validate and sanitize course data on update
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const validateUpdateData = (data: any) => {
   // Validate and sanitize syllabus
   if (data.syllabus !== undefined) {
@@ -11,6 +13,7 @@ const validateUpdateData = (data: any) => {
     }
 
     // Validate each syllabus item
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     data.syllabus = data.syllabus.map((item: any, index: number) => {
       if (!item || typeof item !== 'object') {
         throw new Error(`Syllabus item at index ${index} must be an object`);
@@ -64,7 +67,6 @@ const validateUpdateData = (data: any) => {
   return data;
 };
 
-// GET /api/courses/[id] - Get single course by ID
 export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
@@ -72,6 +74,10 @@ export async function GET(
   try {
     const { id } = params;
     
+    // --- NEW --- Read the 'populate' parameter from the URL
+    const { searchParams } = new URL(req.url);
+    const populate = searchParams.get('populate');
+
     // Validate ObjectId format
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
@@ -80,7 +86,8 @@ export async function GET(
       );
     }
     
-    const course = await CourseService.getCourseById(id);
+    // --- MODIFIED --- Pass the 'populate' flag to your service function
+    const course = await CourseService.getCourseById(id, populate === 'true');
     
     if (!course) {
       return NextResponse.json(

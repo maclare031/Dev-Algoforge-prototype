@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import  dbConnect  from './db';
 import Course from '@/models/Course';
 import { Course as CourseType, CourseCategory, NavigationCourseCategory, NavigationCourse } from '@/types/course';
@@ -14,6 +15,7 @@ import {
   Shield,
   Globe,
 } from "lucide-react";
+import Module from '@/models/Module';
 
 // Icon mapping for database courses
 const iconMapping: Record<string, any> = {
@@ -32,14 +34,15 @@ const iconMapping: Record<string, any> = {
 
 export class CourseService {
   // Helper method to transform database course to CourseType
-  private static transformCourse(course: any): CourseType {
+private static transformCourse(course: any): CourseType {
     return {
       ...course,
       id: course._id.toString(),
-      _id: undefined,
+      // The line "_id: undefined" has been removed.
       icon: iconMapping[course.iconName] || Code,
     } as CourseType;
-  }
+}
+
 
   // Get all courses with optional filtering (Enhanced version)
   static async getCourses(filters: {
@@ -111,15 +114,30 @@ export class CourseService {
     return courses.map(this.transformCourse);
   }
 
-  static async getCourseById(id: string): Promise<CourseType | null> {
+
+  static async getCourseById(id: string, populateModules = false): Promise<CourseType | null> {
     await dbConnect();
-    const course = await Course.findById(id).lean();
+    
+    let query = Course.findById(id);
+
+    if (populateModules) {
+      // This now populates the modules, AND the content within each module
+      query = query.populate({
+        path: 'modules',
+        populate: {
+          path: 'content',
+          model: 'Content' // Ensure you have a 'Content' model imported
+        }
+      });
+    }
+
+    const course = await query.lean();
     
     if (!course) return null;
     
     return this.transformCourse(course);
   }
-
+  
   static async getNavigationCourses(): Promise<NavigationCourseCategory[]> {
     const courses = await this.getAllCourses();
     const categories: CourseCategory[] = ["students", "professionals", "corporates"];
@@ -155,6 +173,7 @@ export class CourseService {
     return navCourses;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static async createCourse(courseData: any): Promise<CourseType> {
     await dbConnect();
     
