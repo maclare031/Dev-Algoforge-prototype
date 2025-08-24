@@ -50,6 +50,7 @@ export default function AnalyticsDashboard() {
             throw new Error(result.message || 'An unknown error occurred.');
         }
         setData(result);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
         setError(err.message || 'Could not load analytics data. Please ensure your API keys are correct.');
         console.error(err);
