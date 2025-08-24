@@ -96,10 +96,10 @@ function AdminDashboardContent() {
   const [leadsPerPage] = useState(10);
   const router = useRouter();
 
-  const handleLogout = () => {
-    localStorage.removeItem('adminAuth');
-    router.push('/admin/login');
-  };
+  // const handleLogout = () => {
+  //   localStorage.removeItem('adminAuth');
+  //   router.push('/admin/login');
+  // };
 
   // Fetch leads data
   const fetchLeads = async () => {
